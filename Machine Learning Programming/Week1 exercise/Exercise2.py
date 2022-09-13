@@ -10,7 +10,7 @@ import math
 import sys
 
 
-class car:
+class Car:
     def __init__(self, year, mpg, speed):
         self.year = year
         self.mpg = mpg
@@ -30,9 +30,9 @@ class car:
 
 
 def func():
-    car1 = car(2016, 20, 80)
+    car1 = Car(2016, 20, 80)
     print(car1)
-    car2 = car(2013, 25, 60)
+    car2 = Car(2013, 25, 60)
     print(car2)
 
 
