@@ -34,9 +34,9 @@ if __name__ == '__main__':
     # fig = sns.pairplot(df)
     # fig.savefig(workspace + "/output/1.png")
 
-    fig = sns.pairplot(df, hue="quality", plot_kws = {'alpha': 0.7})
+    # fig = sns.pairplot(df, hue="quality", plot_kws = {'alpha': 0.7})
     # fig.map_lower(sns.kdeplot, levels=3)
-    fig.savefig(workspace + "/output/2.png", dpi=400)
+    # fig.savefig(workspace + "/output/2.png", dpi=400)
 
     print_hi('PyCharm')
 
