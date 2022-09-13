@@ -32,7 +32,12 @@ class Car:
 def func():
     car1 = Car(2016, 20, 80)
     print(car1)
+    car1.accelerate()
+    print(car1)
+
     car2 = Car(2013, 25, 60)
+    print(car2)
+    car2.brake()
     print(car2)
 
 
