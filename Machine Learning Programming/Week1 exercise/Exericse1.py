@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 
 
 def solution1(n, c, is_debug=False):
-    if n > 500:
-        return
     r = n - 1
     cnt = 0
     s = ''
@@ -42,6 +40,8 @@ def solution2(n, c, is_debug=False):
 
 
 def get_time_cost(n, c, solution, if_print=False, i=1):
+    if n > 1000:
+        return 0
     # print(solution.func_name + " timer start")
     t = time.time()
     for tmp in range(i):
