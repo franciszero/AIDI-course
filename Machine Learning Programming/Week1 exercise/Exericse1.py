@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 
 def solution1(n, c, is_debug=False):
+    if n > 500:
+        return
     r = n - 1
     cnt = 0
     s = ''
