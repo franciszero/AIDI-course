@@ -37,16 +37,9 @@ import pylab
 
 if __name__ == '__main__':
     ts = TimeSerious()
-
     cols = ts.df.columns.array
 
-    # ts.test_corr(20)
-    # ts.rolling_plot(233)
-    # ts.foo()
-
-    # ts.job1_corr_exam()
-    # ts.job2_show_the_volume_trend()
-    # ts.job3_visualize_the_volume_outliers()
+    ts.job1_corr_exam()
+    ts.job2_show_the_volume_trend()
+    ts.job3_visualize_the_volume_outliers()
     ts.job4_calc_surpass_times()
-
-    print(1)
