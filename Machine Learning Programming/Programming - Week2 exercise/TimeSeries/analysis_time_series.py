@@ -1,0 +1,189 @@
+# coding=utf-8
+import pandas as pd
+from sklearn.covariance import EllipticEnvelope
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import LocalOutlierFactor
+from statsmodels.tsa.seasonal import seasonal_decompose
+import matplotlib.pyplot as plt
+import seaborn as sns
+import math
+import numpy as np
+from scipy import stats
+import statsmodels.api as sm
+from numpy import asarray
+from numpy import exp
+from matplotlib import pyplot
+from sklearn.neighbors import KernelDensity
+from scipy.stats import norm
+
+from TimeSeries.KDE_exercise import my_scores
+
+
+class TimeSerious:
+    def __init__(self):
+        self.decompose = None
+        self.col = None
+        self.auto_correlation_lag = None
+        self.df = pd.read_csv('./data/google.csv')
+
+    def rolling_plot(self, col, roll):
+        rolling_mean = self.df[col].rolling(roll).mean()
+        rolling_std = self.df[col].rolling(roll).std()
+        plt.plot(self.df[col], color='blue', label='Original Stock Data for : ' + self.col)
+        plt.plot(rolling_mean, color='red', label='Rolling Mean Number')
+        plt.plot(rolling_std, color='black', label='Rolling Standard Deviation')
+        plt.title('Time Series, Rolling Mean, Standard Deviation')
+        plt.legend(loc='best')
+
+    def test_corr(self, col, lag):
+        self.auto_correlation_lag = self.df[col].autocorr(lag=lag)
+        print('Lag=%d, score=%.2f' % (lag, self.auto_correlation_lag))
+
+    def time_series_decomposition(self, col):
+        if self.decompose is None:
+            self.decompose = seasonal_decompose(self.df[col], model='additive', period=50)
+        return self.decompose
+
+    def get_dist(self, resid, sample_size, bandwidth, isplot=False):
+        _x_train = np.random.choice(resid, size=sample_size, replace=True).reshape(-1, 1)
+        _x_test = np.linspace(math.floor(min(_x_train)), math.ceil(max(_x_train)), len(_x_train))[:, np.newaxis]
+        h_vals = np.arange(bandwidth, bandwidth * 10, bandwidth)
+        kernels = ['cosine', 'epanechnikov', 'exponential', 'gaussian', 'linear', 'tophat']
+        grid = GridSearchCV(KernelDensity(), {'bandwidth': h_vals, 'kernel': kernels}, scoring=my_scores)
+        grid.fit(_x_train)
+        _best_kde = grid.best_estimator_
+        _log_dens = _best_kde.score_samples(_x_test)
+        _dist = np.exp(_log_dens)
+        _dist = _dist + min(_dist)
+        _dist = _dist / sum(_dist)
+        if isplot:
+            plt.fill(_x_test, _dist, c='cyan')
+            plt.title("Best Kernel: " + _best_kde.kernel + " h=" + "{:.2f}".format(_best_kde.bandwidth))
+            plt.show()
+        return _x_test, _dist
+
+    def get_residual_anomalies(self, d, x_test, residual):
+        threshold = 0.99
+        # residual_anomalies
+        mid_idx = d.argmax()
+        sum_l = sum(d[:mid_idx])
+        idx_l = -1
+        for i in range(mid_idx, idx_l, -1):
+            if sum(d[i:mid_idx]) / sum_l > threshold:
+                idx_l = i
+                break
+        anomaly_l = x_test[idx_l][0]
+        sum_r = sum(d[mid_idx:])
+        idx_r = len(d)
+        for i in range(mid_idx, idx_r, 1):
+            if sum(d[mid_idx:i]) / sum_r > threshold:
+                idx_r = i
+                break
+        anomaly_r = x_test[idx_r][0]
+        residual_anomalies = residual[(residual < anomaly_l) | (residual > anomaly_r)]
+        residual_anomalies.name = 'anomalies'
+        return residual_anomalies, anomaly_l, x_test[mid_idx], anomaly_r
+
+    def plot_resid(self, decompose):
+        decompose = self.time_series_decomposition('Volume')
+        # decompose.plot()
+        residual = decompose.resid.fillna(0)  # .apply(lambda x: round(-x, 2) if x < 0 else round(x, 2))
+        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
+        plt.subplot(121)
+        plt.scatter(np.arange(len(residual)), residual, c='green')
+        plt.xlabel('Sample no.')
+        plt.ylabel('Value')
+        plt.title('Scatter plot')
+        plt.subplot(122)
+        plt.hist(residual, bins=20)
+        plt.title('Histogram')
+        fig.subplots_adjust(wspace=.3)
+        plt.show()
+
+    def job1_corr_exam(self):
+        fig = sns.pairplot(self.df)
+        fig.savefig("./output/job1_corr_exam.png")
+        plt.cla()
+        pass
+
+    def job2_show_the_volume_trend(self):
+        pass
+
+    def job3_visualize_the_volume_outliers(self):
+        decompose = self.time_series_decomposition('Volume')
+        # decompose.plot()
+        residual = decompose.resid.fillna(0)  # .apply(lambda x: round(-x, 2) if x < 0 else round(x, 2))
+
+        # residual plot with dist histogram
+        # https://matplotlib.org/stable/gallery/subplots_axes_and_figures/gridspec_multicolumn.html
+        # https://matplotlib.org/stable/gallery/lines_bars_and_markers/scatter_hist.html#defining-the-axes-positions-using-inset-axes
+        fig = plt.figure(figsize=(10, 4), dpi=150, constrained_layout=True)
+        gs = plt.GridSpec(4, 7, figure=fig, left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=0.05, hspace=0.05)
+        ax_resid = fig.add_subplot(gs[1:, :-1])
+        ax1 = fig.add_subplot(gs[1:, -1:], sharey=ax_resid)
+        ax_volume = fig.add_subplot(gs[0, 0:-1])
+        ax2 = ax1.twiny()
+        [t.set_color('red') for t in ax1.xaxis.get_ticklabels()]
+        [t.set_color('blue') for t in ax2.xaxis.get_ticklabels()]
+
+        x = np.arange(len(residual))
+        y = residual
+        #
+        ax_resid.scatter(x, y, s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
+        ax2 = plt.hist(y, 80, histtype='stepfilled', orientation='horizontal', alpha=0.7)
+        # KDE
+        x_test, dist = self.get_dist(residual, 1500, 1 * 10000 * 100, isplot=False)
+        ax1.plot(dist, x_test, '-.', color='r', linewidth=.5, alpha=.8)
+        ax1.axis(xmin=0, xmax=max(dist) * 1.1)
+        # plot anomalies in residuals
+        residual_anomalies, l, m, r = self.get_residual_anomalies(dist, x_test, residual)
+        ax1.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
+        ax1.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
+        ax1.plot(x, [m] * len(x), color='red', linewidth=.8, alpha=1)
+        tmp = pd.concat([residual, residual_anomalies], axis=1, ignore_index=False)
+        markerline1, stemlines1, baseline1 = ax_resid.stem(x, tmp['anomalies'], linefmt=':', markerfmt='o',bottom=m)
+        plt.setp(stemlines1, lw=0.5)
+        plt.setp(markerline1, lw=0.5, color='r', markersize=1)  # 将棉棒末端设置为黑色
+        plt.setp(baseline1, lw=0.5)
+        ax_resid.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
+        ax_resid.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
+        ax_resid.axis(xmin=0, xmax=len(y))
+        # volume
+        ax_volume.scatter(x, self.df['Volume'], s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
+        ax_volume.axis(ymin=0, ymax=max(self.df['Volume']) * 1.1)
+        ax_volume.axis(xmin=0, xmax=len(self.df['Volume']))
+        tmp = pd.concat([self.df['Volume'], residual_anomalies], axis=1, ignore_index=False)
+        tmp.loc[tmp['anomalies'] != tmp['anomalies'], 'Volume'] = 0
+        markerline2, stemlines2, baseline2 = ax_volume.stem(x, tmp['Volume'], linefmt=':', markerfmt='o')
+        plt.setp(stemlines2, lw=0.5)
+        plt.setp(markerline2, lw=0.5, color='r', markersize=1)  # 将棉棒末端设置为黑色
+        plt.setp(baseline2, lw=0)
+        # plt.show()
+        fig.savefig("./output/job3_visualize_the_volume_outliers.png")
+        return
+
+    def my_scores(self, estimator, X):
+        scores = estimator.score_samples(X)
+        # Remove -inf
+        scores = scores[scores != float('-inf')]
+        # Return the mean values
+        return np.mean(scores)
+
+    def random_sample(self, array, size: int, replace=True):
+        """随机抽样: 每个样本等概率抽样
+        :param array: 待采样数组
+        :param size: 采样个数
+        :param replace: 是否放回，True为有放回的抽样，False为无放回的抽样
+        """
+        return np.random.choice(array, size=size, replace=replace)
+
+    def job4_calc_surpass_times(self):
+        pass
+
+    def getDistanceByPoint(self, model):
+        distance = pd.Series()
+        for i in range(0, len(self.df)):
+            Xa = np.array(self.df.loc[i])
+            Xb = model.cluster_centers_[model.labels_[i] - 1]
+            distance.set_value(i, np.linalg.norm(Xa - Xb))
+        return distance
