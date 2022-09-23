@@ -41,7 +41,7 @@ class TimeSerious:
 
     def time_series_decomposition(self, col):
         if self.decompose is None:
-            self.decompose = seasonal_decompose(self.df[col], model='additive', period=50)
+            self.decompose = seasonal_decompose(self.df[col], model='additive', period=100)
         return self.decompose
 
     def get_dist(self, resid, sample_size, bandwidth, isplot=False):
@@ -63,7 +63,7 @@ class TimeSerious:
         return _x_test, _dist
 
     def get_residual_anomalies(self, d, x_test, residual):
-        threshold = 0.99
+        threshold = 0.997
         # residual_anomalies
         mid_idx = d.argmax()
         sum_l = sum(d[:mid_idx])
@@ -84,83 +84,105 @@ class TimeSerious:
         residual_anomalies.name = 'anomalies'
         return residual_anomalies, anomaly_l, x_test[mid_idx], anomaly_r
 
-    def plot_resid(self, decompose):
-        decompose = self.time_series_decomposition('Volume')
-        # decompose.plot()
-        residual = decompose.resid.fillna(0)  # .apply(lambda x: round(-x, 2) if x < 0 else round(x, 2))
-        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
-        plt.subplot(121)
-        plt.scatter(np.arange(len(residual)), residual, c='green')
-        plt.xlabel('Sample no.')
-        plt.ylabel('Value')
-        plt.title('Scatter plot')
-        plt.subplot(122)
-        plt.hist(residual, bins=20)
-        plt.title('Histogram')
-        fig.subplots_adjust(wspace=.3)
-        plt.show()
-
     def job1_corr_exam(self):
+        fig = sns.heatmap(self.df.drop(['Date'], axis=1).corr(), annot=True, cmap='summer')
+        heatmap = fig.get_figure()
+        heatmap.savefig("./output/job1_corr_on_heatmap.png")
+        plt.clf()
         fig = sns.pairplot(self.df)
-        fig.savefig("./output/job1_corr_exam.png")
-        plt.cla()
+        fig.savefig("./output/job1_corr_on_pairplot.png")
         pass
 
     def job2_show_the_volume_trend(self):
+        decompose = self.time_series_decomposition('Volume')
+        tr = decompose.trend
+        tr = tr[tr == tr]
+        fig = plt.figure(figsize=(10, 5), dpi=100, constrained_layout=True)
+        ax = fig.add_subplot()
+        ax.scatter(decompose.observed.index, decompose.observed, s=5, alpha=.8)
+        ax.plot(tr.index.to_list(), tr.to_list(), linewidth=2, color='red')
+        plt.suptitle("Visualize the trend in volume of stock data")
+        fig.savefig("./output/job2_TS_trend.png")
         pass
 
     def job3_visualize_the_volume_outliers(self):
         decompose = self.time_series_decomposition('Volume')
         # decompose.plot()
         residual = decompose.resid.fillna(0)  # .apply(lambda x: round(-x, 2) if x < 0 else round(x, 2))
+        x_test, dist = self.get_dist(residual, 500, 1 * 10000 * 100, isplot=False)
+        residual_anomalies, l, m, r = self.get_residual_anomalies(dist, x_test, residual)
 
         # residual plot with dist histogram
         # https://matplotlib.org/stable/gallery/subplots_axes_and_figures/gridspec_multicolumn.html
         # https://matplotlib.org/stable/gallery/lines_bars_and_markers/scatter_hist.html#defining-the-axes-positions-using-inset-axes
+        # https://blog.csdn.net/weixin_41298166/article/details/106273258
         fig = plt.figure(figsize=(10, 4), dpi=150, constrained_layout=True)
         gs = plt.GridSpec(4, 7, figure=fig, left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=0.05, hspace=0.05)
         ax_resid = fig.add_subplot(gs[1:, :-1])
         ax1 = fig.add_subplot(gs[1:, -1:], sharey=ax_resid)
         ax_volume = fig.add_subplot(gs[0, 0:-1])
-        ax2 = ax1.twiny()
-        [t.set_color('red') for t in ax1.xaxis.get_ticklabels()]
-        [t.set_color('blue') for t in ax2.xaxis.get_ticklabels()]
 
         x = np.arange(len(residual))
         y = residual
         #
-        ax_resid.scatter(x, y, s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
+        self.plot_KDE(ax1, dist, l, m, r, x, x_test, y)
+        self.plot_resid_and_its_anom(ax_resid, l, m, r, residual, residual_anomalies, x, y)
+        self.plot_volume_and_its_anom(ax_volume, residual_anomalies, x)
+        # plt.setp(baseline2, linewidth=1, color='yellow', markersize=10)
+        # save fig
+        plt.suptitle("Anomalies defined by TS Residual Distribution")
+        fig.savefig("./output/job3_visualize_the_volume_outliers.png")
+        return
+
+    def plot_KDE(self, ax1, dist, l, m, r, x, x_test, y):
+        # prepare twin plot ax
+        ax2 = ax1.twiny()
+        [t.set_color('red') for t in ax1.xaxis.get_ticklabels()]
+        [t.set_color('blue') for t in ax2.xaxis.get_ticklabels()]
+        # histogram of residuals
         ax2 = plt.hist(y, 80, histtype='stepfilled', orientation='horizontal', alpha=0.7)
         # KDE
-        x_test, dist = self.get_dist(residual, 1500, 1 * 10000 * 100, isplot=False)
         ax1.plot(dist, x_test, '-.', color='r', linewidth=.5, alpha=.8)
         ax1.axis(xmin=0, xmax=max(dist) * 1.1)
         # plot anomalies in residuals
-        residual_anomalies, l, m, r = self.get_residual_anomalies(dist, x_test, residual)
         ax1.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
         ax1.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
         ax1.plot(x, [m] * len(x), color='red', linewidth=.8, alpha=1)
-        tmp = pd.concat([residual, residual_anomalies], axis=1, ignore_index=False)
-        markerline1, stemlines1, baseline1 = ax_resid.stem(x, tmp['anomalies'], linefmt=':', markerfmt='o',bottom=m)
-        plt.setp(stemlines1, lw=0.5)
-        plt.setp(markerline1, lw=0.5, color='r', markersize=1)  # 将棉棒末端设置为黑色
-        plt.setp(baseline1, lw=0.5)
-        ax_resid.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
-        ax_resid.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
-        ax_resid.axis(xmin=0, xmax=len(y))
-        # volume
-        ax_volume.scatter(x, self.df['Volume'], s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
+        ax1.title.set_text('KDE')
+
+    def plot_volume_and_its_anom(self, ax_volume, residual_anomalies, x):
+        # get volume anom
+        a = pd.concat([self.df['Volume'], residual_anomalies], axis=1, ignore_index=False)
+        a['anomalies'].fillna(0, inplace=True)  # a.loc[a['anomalies'] != a['anomalies'], 'Volume'] = 0
         ax_volume.axis(ymin=0, ymax=max(self.df['Volume']) * 1.1)
         ax_volume.axis(xmin=0, xmax=len(self.df['Volume']))
-        tmp = pd.concat([self.df['Volume'], residual_anomalies], axis=1, ignore_index=False)
-        tmp.loc[tmp['anomalies'] != tmp['anomalies'], 'Volume'] = 0
-        markerline2, stemlines2, baseline2 = ax_volume.stem(x, tmp['Volume'], linefmt=':', markerfmt='o')
-        plt.setp(stemlines2, lw=0.5)
-        plt.setp(markerline2, lw=0.5, color='r', markersize=1)  # 将棉棒末端设置为黑色
-        plt.setp(baseline2, lw=0)
-        # plt.show()
-        fig.savefig("./output/job3_visualize_the_volume_outliers.png")
-        return
+        ax_volume.title.set_text('volume')
+        # plot volume anom
+        anom_x = a[a['anomalies'] != 0.0].index.values
+        anom_y = a[a['anomalies'] != 0.0]['Volume'].values
+        marker_line, stem_lines, baseline = ax_volume.stem(anom_x, anom_y, linefmt=':', markerfmt='o', bottom=0)
+        plt.setp(stem_lines, lw=0.5)
+        plt.setp(marker_line, lw=0.5, color='r', markersize=1)
+        plt.setp(baseline, visible=False)
+        # plot volume
+        ax_volume.scatter(x, self.df['Volume'], s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
+
+    def plot_resid_and_its_anom(self, ax_resid, l, m, r, residual, residual_anomalies, x, y):
+        # plot residuals
+        ax_resid.scatter(x, y, s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
+        # plot residuals anom
+        anomalies_resid = pd.concat([residual, residual_anomalies], axis=1, ignore_index=False)
+        marker_line, stem_line, baseline = ax_resid.stem(x, anomalies_resid['anomalies'],
+                                                         linefmt=':', markerfmt='o', bottom=m)
+        plt.setp(stem_line, lw=0.5)
+        plt.setp(marker_line, lw=0.5, color='r', markersize=1)  # 将棉棒末端设置为黑色
+        plt.setp(baseline, lw=0.5)
+        # plot thresholds
+        ax_resid.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
+        ax_resid.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
+        # reset x axis
+        ax_resid.axis(xmin=0, xmax=len(y))
+        ax_resid.title.set_text('volume residual')
 
     def my_scores(self, estimator, X):
         scores = estimator.score_samples(X)
