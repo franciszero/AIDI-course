@@ -17,6 +17,10 @@ from sklearn.neighbors import KernelDensity
 from scipy.stats import norm
 
 from TimeSeries.KDE_exercise import my_scores
+import mplfinance as mpf
+import talib
+# import psycopg2 as pg
+import matplotlib.gridspec as gridspec
 
 
 class TimeSerious:
@@ -134,78 +138,98 @@ class TimeSerious:
         fig.savefig("./output/job3_visualize_the_volume_outliers.png")
         return
 
-    def plot_KDE(self, ax1, dist, l, m, r, x, x_test, y):
-        # prepare twin plot ax
-        ax2 = ax1.twiny()
-        [t.set_color('red') for t in ax1.xaxis.get_ticklabels()]
-        [t.set_color('blue') for t in ax2.xaxis.get_ticklabels()]
-        # histogram of residuals
-        ax2 = plt.hist(y, 80, histtype='stepfilled', orientation='horizontal', alpha=0.7)
-        # KDE
-        ax1.plot(dist, x_test, '-.', color='r', linewidth=.5, alpha=.8)
-        ax1.axis(xmin=0, xmax=max(dist) * 1.1)
-        # plot anomalies in residuals
-        ax1.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
-        ax1.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
-        ax1.plot(x, [m] * len(x), color='red', linewidth=.8, alpha=1)
-        ax1.title.set_text('KDE')
-
-    def plot_volume_and_its_anom(self, ax_volume, residual_anomalies, x):
-        # get volume anom
-        a = pd.concat([self.df['Volume'], residual_anomalies], axis=1, ignore_index=False)
-        a['anomalies'].fillna(0, inplace=True)  # a.loc[a['anomalies'] != a['anomalies'], 'Volume'] = 0
-        ax_volume.axis(ymin=0, ymax=max(self.df['Volume']) * 1.1)
-        ax_volume.axis(xmin=0, xmax=len(self.df['Volume']))
-        ax_volume.title.set_text('volume')
-        # plot volume anom
-        anom_x = a[a['anomalies'] != 0.0].index.values
-        anom_y = a[a['anomalies'] != 0.0]['Volume'].values
-        marker_line, stem_lines, baseline = ax_volume.stem(anom_x, anom_y, linefmt=':', markerfmt='o', bottom=0)
-        plt.setp(stem_lines, lw=0.5)
-        plt.setp(marker_line, lw=0.5, color='r', markersize=1)
-        plt.setp(baseline, visible=False)
-        # plot volume
-        ax_volume.scatter(x, self.df['Volume'], s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
-
-    def plot_resid_and_its_anom(self, ax_resid, l, m, r, residual, residual_anomalies, x, y):
-        # plot residuals
-        ax_resid.scatter(x, y, s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
-        # plot residuals anom
-        anomalies_resid = pd.concat([residual, residual_anomalies], axis=1, ignore_index=False)
-        marker_line, stem_line, baseline = ax_resid.stem(x, anomalies_resid['anomalies'],
-                                                         linefmt=':', markerfmt='o', bottom=m)
-        plt.setp(stem_line, lw=0.5)
-        plt.setp(marker_line, lw=0.5, color='r', markersize=1)  # 将棉棒末端设置为黑色
-        plt.setp(baseline, lw=0.5)
-        # plot thresholds
-        ax_resid.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
-        ax_resid.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
-        # reset x axis
-        ax_resid.axis(xmin=0, xmax=len(y))
-        ax_resid.title.set_text('volume residual')
-
-    def my_scores(self, estimator, X):
-        scores = estimator.score_samples(X)
-        # Remove -inf
-        scores = scores[scores != float('-inf')]
-        # Return the mean values
-        return np.mean(scores)
-
-    def random_sample(self, array, size: int, replace=True):
-        """随机抽样: 每个样本等概率抽样
-        :param array: 待采样数组
-        :param size: 采样个数
-        :param replace: 是否放回，True为有放回的抽样，False为无放回的抽样
-        """
-        return np.random.choice(array, size=size, replace=replace)
-
     def job4_calc_surpass_times(self):
-        pass
+        d = self.df.drop(['Adj Close'], axis=1)
+        tmp = d["Open"] - d["Close"]
+        title = "there are %d/%d surpassed days in google stock data" % (tmp[tmp > 0].size, tmp.size)
 
-    def getDistanceByPoint(self, model):
-        distance = pd.Series()
-        for i in range(0, len(self.df)):
-            Xa = np.array(self.df.loc[i])
-            Xb = model.cluster_centers_[model.labels_[i] - 1]
-            distance.set_value(i, np.linalg.norm(Xa - Xb))
-        return distance
+        d["Date"] = pd.to_datetime(d["Date"])
+        d.set_index(["Date"], inplace=True)
+
+        np.seterr(divide='ignore', invalid='ignore')  # 忽略warning
+        plt.rcParams['font.sans-serif'] = ['SimHei']  # show chinese character
+        plt.rcParams['axes.unicode_minus'] = False  # show unicode minus
+        # fig = plt.figure(figsize=(20, 12), dpi=100, facecolor="white")  # 创建fig对象
+
+        # https://github.com/matplotlib/mplfinance/blob/master/examples/marketcolor_overrides.ipynb
+        # https://github.com/matplotlib/mplfinance/blob/master/examples/savefig.ipynb
+        mpf.plot(d, volume=True, style='yahoo', type='candle', savefig="./output/job4_candle.png", title=title)
+
+
+def plot_KDE(self, ax1, dist, l, m, r, x, x_test, y):
+    # prepare twin plot ax
+    ax2 = ax1.twiny()
+    [t.set_color('red') for t in ax1.xaxis.get_ticklabels()]
+    [t.set_color('blue') for t in ax2.xaxis.get_ticklabels()]
+    # histogram of residuals
+    ax2 = plt.hist(y, 80, histtype='stepfilled', orientation='horizontal', alpha=0.7)
+    # KDE
+    ax1.plot(dist, x_test, '-.', color='r', linewidth=.5, alpha=.8)
+    ax1.axis(xmin=0, xmax=max(dist) * 1.1)
+    # plot anomalies in residuals
+    ax1.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
+    ax1.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
+    ax1.plot(x, [m] * len(x), color='red', linewidth=.8, alpha=1)
+    ax1.title.set_text('KDE')
+
+
+def plot_volume_and_its_anom(self, ax_volume, residual_anomalies, x):
+    # get volume anom
+    a = pd.concat([self.df['Volume'], residual_anomalies], axis=1, ignore_index=False)
+    a['anomalies'].fillna(0, inplace=True)  # a.loc[a['anomalies'] != a['anomalies'], 'Volume'] = 0
+    ax_volume.axis(ymin=0, ymax=max(self.df['Volume']) * 1.1)
+    ax_volume.axis(xmin=0, xmax=len(self.df['Volume']))
+    ax_volume.title.set_text('volume')
+    # plot volume anom
+    anom_x = a[a['anomalies'] != 0.0].index.values
+    anom_y = a[a['anomalies'] != 0.0]['Volume'].values
+    marker_line, stem_lines, baseline = ax_volume.stem(anom_x, anom_y, linefmt=':', markerfmt='o', bottom=0)
+    plt.setp(stem_lines, lw=0.5)
+    plt.setp(marker_line, lw=0.5, color='r', markersize=1)
+    plt.setp(baseline, visible=False)
+    # plot volume
+    ax_volume.scatter(x, self.df['Volume'], s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
+
+
+def plot_resid_and_its_anom(self, ax_resid, l, m, r, residual, residual_anomalies, x, y):
+    # plot residuals
+    ax_resid.scatter(x, y, s=4, alpha=.8, cmap="tab10", edgecolors='gray', linewidths=.2)
+    # plot residuals anom
+    anomalies_resid = pd.concat([residual, residual_anomalies], axis=1, ignore_index=False)
+    marker_line, stem_line, baseline = ax_resid.stem(x, anomalies_resid['anomalies'],
+                                                     linefmt=':', markerfmt='o', bottom=m)
+    plt.setp(stem_line, lw=0.5)
+    plt.setp(marker_line, lw=0.5, color='r', markersize=1)  # 将棉棒末端设置为黑色
+    plt.setp(baseline, lw=0.5)
+    # plot thresholds
+    ax_resid.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
+    ax_resid.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
+    # reset x axis
+    ax_resid.axis(xmin=0, xmax=len(y))
+    ax_resid.title.set_text('volume residual')
+
+
+def my_scores(self, estimator, X):
+    scores = estimator.score_samples(X)
+    # Remove -inf
+    scores = scores[scores != float('-inf')]
+    # Return the mean values
+    return np.mean(scores)
+
+
+def random_sample(self, array, size: int, replace=True):
+    """随机抽样: 每个样本等概率抽样
+    :param array: 待采样数组
+    :param size: 采样个数
+    :param replace: 是否放回，True为有放回的抽样，False为无放回的抽样
+    """
+    return np.random.choice(array, size=size, replace=replace)
+
+
+def getDistanceByPoint(self, model):
+    distance = pd.Series()
+    for i in range(0, len(self.df)):
+        Xa = np.array(self.df.loc[i])
+        Xb = model.cluster_centers_[model.labels_[i] - 1]
+        distance.set_value(i, np.linalg.norm(Xa - Xb))
+    return distance
