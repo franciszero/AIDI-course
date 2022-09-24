@@ -1,4 +1,6 @@
 # coding=utf-8
+from unicodedata import decimal
+
 import pandas as pd
 import numpy as np
 import math
@@ -165,32 +167,32 @@ class TimeSerious:
     def get_tick_labels(self, x_max, cnt):
         arr = np.linspace(0, x_max, num=cnt, endpoint=True)
         steps = float("%.0e" % arr[1])
-        return np.arange(0, x_max + steps, steps)
+        labels = np.arange(0, x_max + steps, steps)
+        return [str(round(float(label), 3)) for label in labels if label != '']
 
     def plot_KDE(self, ax1, dist, l, m, r, x, x_test, y):
-        # histogram of residuals
         # ax1.title.set_text('KDE')
         ax1.set_title('KDE', fontdict={'fontsize': 9})
         ax1.hist(y, 80, histtype='stepfilled', orientation='horizontal', alpha=0.8)
         # [label.set_fontsize(7) for label in (ax1.get_xticklabels() + ax1.get_yticklabels())]
         [tick.set_color('steelblue') for tick in ax1.xaxis.get_ticklabels()]
+        # ax1.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.0f°E'))
+        ax1.xaxis.set_major_formatter(FormatStrFormatter('%.0f'))
         # KDE
         ax2 = ax1.twiny()
         ax2.plot(dist, x_test, '-.', color='r', linewidth=.8, alpha=1)
         labels = self.get_tick_labels(max(dist), 5)
-        ticks = np.arange(len(labels))
-        ax2.axis(xmin=0, xmax=labels[-1])
-        # ax2.set_xticks(ticks, minor=False)
-        # ax2.set_xticklabels(labels, fontdict=None, minor=False)
+        ax2.axis(xmin=0, xmax=max(dist)*1.05)
+        # ax2.axis(xmin=0, xmax=float(labels[-1]))
+        # ax2.set_xticks(np.arange(len(labels)))
+        # ax2.set_xticklabels(['x'] * len(labels))
 
         [tick.set_color('red') for tick in ax2.xaxis.get_ticklabels()]
         # [label.set_fontsize(7) for label in (ax2.get_xticklabels())]
         # plot threshold in residuals
         ax2.plot(x, [l] * len(x), color='gray', linewidth=.2, alpha=.8)
         ax2.plot(x, [r] * len(x), color='gray', linewidth=.2, alpha=.8)
-        ax2.plot(x, [m] * len(x), color='red', linewidth=.9, alpha=1)
-        # ax1.xaxis.set_major_formatter(mticker.FormatStrFormatter('%.0f°E'))
-        ax1.xaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+        ax2.plot(x, [m] * len(x), color='red', linewidth=.5, alpha=1)
 
     def plot_volume_and_its_anom(self, ax_volume, residual_anomalies, x):
         # ax_volume.title.set_text('volume')
