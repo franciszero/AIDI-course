@@ -27,19 +27,6 @@ class TimeSerious:
         self.auto_correlation_lag = None
         self.df = pd.read_csv('./data/google.csv')
 
-    def rolling_plot(self, col, roll):
-        rolling_mean = self.df[col].rolling(roll).mean()
-        rolling_std = self.df[col].rolling(roll).std()
-        plt.plot(self.df[col], color='blue', label='Original Stock Data for : ' + self.col)
-        plt.plot(rolling_mean, color='red', label='Rolling Mean Number')
-        plt.plot(rolling_std, color='black', label='Rolling Standard Deviation')
-        plt.title('Time Series, Rolling Mean, Standard Deviation')
-        plt.legend(loc='best')
-
-    def test_corr(self, col, lag):
-        self.auto_correlation_lag = self.df[col].autocorr(lag=lag)
-        print('Lag=%d, score=%.2f' % (lag, self.auto_correlation_lag))
-
     def time_series_decomposition(self, col):
         if self.decompose is None:
             self.decompose = seasonal_decompose(self.df[col], model='additive', period=100)
@@ -152,18 +139,6 @@ class TimeSerious:
         # https://github.com/matplotlib/mplfinance/blob/master/examples/savefig.ipynb
         mpf.plot(d, volume=True, style='yahoo', type='candle', savefig=path, title=title, warn_too_much_data=10000)
 
-    def countDivisors(self, num):
-        ans = 1
-        x = 2
-        while x * x <= num:
-            cnt = 1
-            while num % x == 0:
-                cnt += 1
-                num /= x
-            ans *= cnt
-            x += 1
-        return ans * (1 + (num > 1))
-
     def get_tick_labels(self, x_max, cnt):
         arr = np.linspace(0, x_max, num=cnt, endpoint=True)
         steps = float("%.0e" % arr[1])
@@ -232,26 +207,3 @@ class TimeSerious:
         # reset x axis
         ax_resid.axis(xmin=0, xmax=len(y))
         [label.set_fontsize(6) for label in (ax_resid.get_xticklabels() + ax_resid.get_yticklabels())]
-
-    def my_scores(self, estimator, X):
-        scores = estimator.score_samples(X)
-        # Remove -inf
-        scores = scores[scores != float('-inf')]
-        # Return the mean values
-        return np.mean(scores)
-
-    def random_sample(self, array, size: int, replace=True):
-        """随机抽样: 每个样本等概率抽样
-        :param array: 待采样数组
-        :param size: 采样个数
-        :param replace: 是否放回，True为有放回的抽样，False为无放回的抽样
-        """
-        return np.random.choice(array, size=size, replace=replace)
-
-    def getDistanceByPoint(self, model):
-        distance = pd.Series()
-        for i in range(0, len(self.df)):
-            Xa = np.array(self.df.loc[i])
-            Xb = model.cluster_centers_[model.labels_[i] - 1]
-            distance.set_value(i, np.linalg.norm(Xa - Xb))
-        return distance
