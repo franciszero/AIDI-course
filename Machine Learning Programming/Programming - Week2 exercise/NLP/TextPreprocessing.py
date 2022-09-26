@@ -42,8 +42,26 @@ def p(df, i):
 # https://www.kdnuggets.com/2018/08/practitioners-guide-processing-understanding-text-2.html
 class TextPreprocessing:
     def __init__(self):
-        df0 = pd.read_csv('./data/netflix_titles.csv', encoding='utf8')
-        df = df0.head(1000).copy(deep=True)
+        self.df0 = pd.read_csv('./data/netflix_titles.csv', encoding='utf8')
+        pass
+
+    # ( 996/1000)[  original text] Movie. Vizontele. Yılmaz Erdoğan, Ömer Faruk Sorak. Turkey. In 1974, a rural town in Anatolia gets its first television set – an event that's met with both excitement and trepidation by the villagers.
+    # ( 996/1000)[ html stripping] Movie. Vizontele. Yılmaz Erdoğan, Ömer Faruk Sorak. Turkey. In 1974, a rural town in Anatolia gets its first television set – an event that's met with both excitement and trepidation by the villagers.
+    # ( 996/1000)[   unicode norm] Movie. Vizontele. Ylmaz Erdogan, Omer Faruk Sorak. Turkey. In 1974, a rural town in Anatolia gets its first television set  an event that's met with both excitement and trepidation by the villagers.
+    # ( 996/1000)[   contractions] Movie. Vizontele. Ylmaz Erdogan, Omer Faruk Sorak. Turkey. In 1974, a rural town in Anatolia gets its first television set  an event that is met with both excitement and trepidation by the villagers.
+    # ( 996/1000)[  to lower case] movie. vizontele. ylmaz erdogan, omer faruk sorak. turkey. in 1974, a rural town in anatolia gets its first television set  an event that is met with both excitement and trepidation by the villagers.
+    # ( 996/1000)[    remove \r\n] movie. vizontele. ylmaz erdogan, omer faruk sorak. turkey. in 1974, a rural town in anatolia gets its first television set  an event that is met with both excitement and trepidation by the villagers.
+    # ( 996/1000)[  lemmatization] movie . vizontele . ylmaz erdogan , omer faruk sorak . turkey . in 1974 , a rural town in anatolia get its first television set   an event that be meet with both excitement and trepidation by the villager .
+    # ( 996/1000)[  insert spaces] movie  .  vizontele  .  ylmaz erdogan , omer faruk sorak  .  turkey  .  in 1974 , a rural town in anatolia get its first television set   an event that be meet with both excitement and trepidation by the villager  .
+    # ( 996/1000)[remove specials] movie    vizontele    ylmaz erdogan  omer faruk sorak    turkey    in   a rural town in anatolia get its first television set   an event that be meet with both excitement and trepidation by the villager
+    # ( 996/1000)[   remove space] movie vizontele ylmaz erdogan omer faruk sorak turkey in a rural town in anatolia get its first television set an event that be meet with both excitement and trepidation by the villager
+    # ( 996/1000)[      stopwords] movie vizontele ylmaz erdogan omer faruk sorak turkey rural town anatolia get first television set event meet excitement trepidation villager
+    def normalize_corpus(self, size, html_stripping=True, contraction_expansion=True,
+                         accented_char_removal=True, text_lower_case=True,
+                         text_lemmatization=True, special_char_removal=True,
+                         stopword_removal=True, remove_digits=True):
+
+        df = self.df0.head(size).copy(deep=True)
 
         # combining interesting columns
         # optional columns: ['show_id', 'type', 'title', 'director', 'cast', 'country', 'date_added',
@@ -58,27 +76,7 @@ class TextPreprocessing:
                           df["listed_in"].map(str) + '. ' + \
                           df["description"].map(str)
 
-        # pre-processing
-        df['clean_text'] = self.normalize_corpus(df['full_text'])
-        df.to_csv('./data/netflix_titles_preprocessed.csv', index=False, encoding='utf-8')
-        pass
-
-    # ( 996/1000)[  original text] Movie. Vizontele. Yılmaz Erdoğan, Ömer Faruk Sorak. Turkey. In 1974, a rural town in Anatolia gets its first television set – an event that's met with both excitement and trepidation by the villagers.
-    # ( 996/1000)[ html stripping] Movie. Vizontele. Yılmaz Erdoğan, Ömer Faruk Sorak. Turkey. In 1974, a rural town in Anatolia gets its first television set – an event that's met with both excitement and trepidation by the villagers.
-    # ( 996/1000)[   unicode norm] Movie. Vizontele. Ylmaz Erdogan, Omer Faruk Sorak. Turkey. In 1974, a rural town in Anatolia gets its first television set  an event that's met with both excitement and trepidation by the villagers.
-    # ( 996/1000)[   contractions] Movie. Vizontele. Ylmaz Erdogan, Omer Faruk Sorak. Turkey. In 1974, a rural town in Anatolia gets its first television set  an event that is met with both excitement and trepidation by the villagers.
-    # ( 996/1000)[  to lower case] movie. vizontele. ylmaz erdogan, omer faruk sorak. turkey. in 1974, a rural town in anatolia gets its first television set  an event that is met with both excitement and trepidation by the villagers.
-    # ( 996/1000)[    remove \r\n] movie. vizontele. ylmaz erdogan, omer faruk sorak. turkey. in 1974, a rural town in anatolia gets its first television set  an event that is met with both excitement and trepidation by the villagers.
-    # ( 996/1000)[  lemmatization] movie . vizontele . ylmaz erdogan , omer faruk sorak . turkey . in 1974 , a rural town in anatolia get its first television set   an event that be meet with both excitement and trepidation by the villager .
-    # ( 996/1000)[  insert spaces] movie  .  vizontele  .  ylmaz erdogan , omer faruk sorak  .  turkey  .  in 1974 , a rural town in anatolia get its first television set   an event that be meet with both excitement and trepidation by the villager  .
-    # ( 996/1000)[remove specials] movie    vizontele    ylmaz erdogan  omer faruk sorak    turkey    in   a rural town in anatolia get its first television set   an event that be meet with both excitement and trepidation by the villager
-    # ( 996/1000)[   remove space] movie vizontele ylmaz erdogan omer faruk sorak turkey in a rural town in anatolia get its first television set an event that be meet with both excitement and trepidation by the villager
-    # ( 996/1000)[      stopwords] movie vizontele ylmaz erdogan omer faruk sorak turkey rural town anatolia get first television set event meet excitement trepidation villager
-    def normalize_corpus(self, corpus, html_stripping=True, contraction_expansion=True,
-                         accented_char_removal=True, text_lower_case=True,
-                         text_lemmatization=True, special_char_removal=True,
-                         stopword_removal=True, remove_digits=True):
-
+        corpus = df['full_text']
         normalized_corpus = []
         # normalize each document in the corpus
         s = len(corpus)
@@ -89,6 +87,24 @@ class TextPreprocessing:
             if html_stripping:
                 doc = BeautifulSoup(doc, "html.parser").get_text()
                 print("(%4d/%d)[%15s] %s" % (i + 1, s, 'html stripping', doc))
+
+            # Using dict to expand contractions from we'll, it's to we will, it is, etc.
+            if contraction_expansion:
+                contractions_pattern = re.compile('({})'.format('|'.join(CONTRACTION_MAP.keys())),
+                                                  flags=re.IGNORECASE | re.DOTALL)
+
+                def expand_match(contraction):
+                    match = contraction.group(0)
+                    first_char = match[0]
+                    expanded_contraction = CONTRACTION_MAP.get(match) \
+                        if CONTRACTION_MAP.get(match) \
+                        else CONTRACTION_MAP.get(match.lower())
+                    expanded_contraction = first_char + expanded_contraction[1:]
+                    return expanded_contraction
+
+                doc = contractions_pattern.sub(expand_match, doc)
+                doc = re.sub("'", "", doc)
+                print("(%4d/%d)[%15s] %s" % (i + 1, s, 'contractions', doc))
 
             # remove accented characters
             if accented_char_removal:
@@ -112,24 +128,6 @@ class TextPreprocessing:
                 # 'python is awesome\n'
                 doc = tmp.encode('ascii', 'ignore').decode('utf-8', 'ignore')
                 print("(%4d/%d)[%15s] %s" % (i + 1, s, 'unicode norm', doc))
-
-            # Using dict to expand contractions from we'll, it's to we will, it is, etc.
-            if contraction_expansion:
-                contractions_pattern = re.compile('({})'.format('|'.join(CONTRACTION_MAP.keys())),
-                                                  flags=re.IGNORECASE | re.DOTALL)
-
-                def expand_match(contraction):
-                    match = contraction.group(0)
-                    first_char = match[0]
-                    expanded_contraction = CONTRACTION_MAP.get(match) \
-                        if CONTRACTION_MAP.get(match) \
-                        else CONTRACTION_MAP.get(match.lower())
-                    expanded_contraction = first_char + expanded_contraction[1:]
-                    return expanded_contraction
-
-                doc = contractions_pattern.sub(expand_match, doc)
-                doc = re.sub("'", "", doc)
-                print("(%4d/%d)[%15s] %s" % (i + 1, s, 'contractions', doc))
 
             # lowercase the text
             if text_lower_case:
@@ -173,4 +171,9 @@ class TextPreprocessing:
 
             normalized_corpus.append(doc)
             print('\n')
-        return normalized_corpus
+
+        df['clean_text'] = normalized_corpus
+        path = './data/netflix_titles_normalize_corpus.csv'
+        df.to_csv(path, index=False, encoding='utf-8')
+        print("save to path: %s" % path)
+        return
