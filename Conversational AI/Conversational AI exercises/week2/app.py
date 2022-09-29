@@ -41,3 +41,4 @@ myData = {
 @app.route("/json")
 def myJson():
     return myData
+
