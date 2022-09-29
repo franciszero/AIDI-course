@@ -16,7 +16,10 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn import metrics
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import KFold
 # %matplotlib
@@ -38,12 +41,19 @@ class IrisColumns(Enum):
 
 
 class Foooo:
-    def __init__(self, test_size=0.4):
+    def __init__(self):
         # self.iris = load_iris()
+        self.groups = None
+        self.y_valid = None
+        self.y_train = None
+        self.X_valid = None
+        self.X_train = None
+        self.y_test = None
+        self.y_modeling = None
+        self.X_test = None
+        self.X_modeling = None
         columns = [c.value for c in IrisColumns]
         self.iris = pd.read_csv('./data/iris.data.csv', header=None, names=columns)
-        self.model_df = None
-        self.test_df = None
 
     def visualizations_on_features(self, val):
         g = sns.FacetGrid(self.iris, col=IrisColumns.label.value, margin_titles=True)
@@ -88,14 +98,16 @@ class Foooo:
         plt.suptitle("Label Proportions")
         plt.show()
 
-    def labels_encoding(self):
-        print("Before encoding: \n", self.iris)
+    def labels_encoding(self, open_display=False):
+        if open_display:
+            print("Before encoding: \n", self.iris)
         # Encode the target variable ie convert it to numeric type
         encoder = LabelEncoder()
-        self.target = encoder.fit_transform(self.iris[IrisColumns.label.value].to_numpy())
-        self.iris[IrisColumns.label.value] = self.target
-        print("\nAfter encoding: \n", self.iris)
-        self.__visualize_groups_after_labels_encoding__(self.target)
+        target = encoder.fit_transform(self.iris[IrisColumns.label.value].to_numpy())
+        self.iris[IrisColumns.label.value] = target
+        if open_display:
+            print("\nAfter encoding: \n", self.iris)
+            self.__visualize_groups_after_labels_encoding__(target)
 
     @staticmethod
     def is_close(a, b, rel_tol=1e-09, abs_tol=0.0):
@@ -106,6 +118,7 @@ class Foooo:
     def __plot_cv_indices(cv, X, y, group, ax, n_splits, lw=10):
         """Create a sample plot for indices of a cross-validation object."""
 
+        ii = 0
         # Generate the training/testing visualizations for each CV split
         for ii, (tr, tt) in enumerate(cv.split(X=X, y=y, groups=group)):
             # Fill in indices with the training/test groups
@@ -126,13 +139,8 @@ class Foooo:
             )
 
         # Plot the data classes and groups at the end
-        ax.scatter(
-            range(len(X)), [ii + 1.5] * len(X), c=y, marker="_", lw=lw, cmap=plt.cm.Paired
-        )
-
-        ax.scatter(
-            range(len(X)), [ii + 2.5] * len(X), c=group, marker="_", lw=lw, cmap=plt.cm.Paired
-        )
+        ax.scatter(range(len(X)), [ii + 1.5] * len(X), c=y, marker="_", lw=lw, cmap=plt.cm.Paired)
+        ax.scatter(range(len(X)), [ii + 2.5] * len(X), c=group, marker="_", lw=lw, cmap=plt.cm.Paired)
 
         # Formatting
         yticklabels = list(range(n_splits)) + ["iris spices", "random group"]
@@ -163,82 +171,80 @@ class Foooo:
         for train_index, test_index in kf.split(X):
             print("TRAIN:", train_index, "TEST:", test_index)
 
-    def training_data_preparations(self, ptr=8, pv=1, ptt=1, g=10):
+    def test_data_proportion(self, ptr=8, pv=1, ptt=1, g=10, seed=999, open_display=False):
         """
         :param ptr: proportion_train
         :param pv: proportion_valid:
         :param ptt: proportion_test:
         :param g: for GroupKFold group numbers
+        :param seed: restate random seed
+        :param open_display: open print for debug
         :return:
         """
         if ptr + pv + ptt != g:
             print("Abort: train proportion + valid proportion + test proportion != ", g)
             exit(0)
-
-        # IDEA
-        # In order to avoid rare situations like:
-        #   If all the 10% test sample comes from the same label,
-        #   for example label 1, then the training set will be
-        #   lack of knowledge of label 1. Training will fail on
-        #   testing with these label 1 samples.
-        # So I code these lines in order to rewrite the function
-        #   "train_test_split" to split samples
-        # see： https://scikit-learn.org/stable/modules/cross_validation.html
         col_t = IrisColumns.label.value
-        col_g = 'groups'
-        #
-        self.test_df = self.iris.groupby(col_t).sample(frac=ptt / g, random_state=123)  # random select test samples
-        self.model_df = self.iris.drop(self.test_df.index.values, axis=0)  # remove test samples
-        self.model_df = self.model_df.sample(frac=1, random_state=123)  # repeatable shuffle
-        self.model_df = self.model_df.sort_values(by=col_t, ascending=True)  # sort by target encoded labels
-        self.model_df = self.model_df.reset_index(drop=True)  # reset index for labeling KFold Groups
-        # set k
-        k = math.ceil((ptr + pv) / pv)
-        self.model_df[col_g] = self.model_df.apply(lambda x: x.name % k, axis=1)  # labeling KFold Groups
-        self.model_df = self.model_df.sort_values(by=[col_g, col_t], ascending=True)  # reorder for KFold
-        X = self.model_df.drop([col_t, col_g], axis=1).to_numpy()
-        y = self.model_df[col_t].to_numpy()
-        groups = self.model_df[col_g].to_numpy()
-        # visualization
-        fig, ax = plt.subplots()
+        X = self.iris.drop([col_t], axis=1).to_numpy()
+        y = self.iris[col_t].to_numpy()
+        self.X_modeling, self.X_test, self.y_modeling, self.y_test = \
+            train_test_split(X, y, test_size=ptt / g, random_state=seed)
+        if open_display:
+            print("X_modeling {}, y_modeling {}\nX_test {}, y_test {}\n"
+                  .format(self.X_modeling.shape, self.y_modeling.shape,
+                          self.X_test.shape, self.y_test.shape))
+        pass
+
+    def valid_data_proportion(self, ptr=8, pv=1, ptt=1, g=10, seed=999, open_display=False):
+        if ptr + pv + ptt != g:
+            print("Abort: train proportion + valid proportion + test proportion != ", g)
+            exit(0)
+        self.X_train, self.X_valid, self.y_train, self.y_valid = \
+            train_test_split(self.X_modeling, self.y_modeling, test_size=pv / (ptr + pv), random_state=seed)
+        if open_display:
+            print("X_train {}, y_train {}\nX_valid {}, y_valid {}\nX_test {}, y_test {}\n"
+                  .format(self.X_train.shape, self.y_train.shape,
+                          self.X_valid.shape, self.y_valid.shape,
+                          self.X_test.shape, self.y_test.shape))
+            print("see details:")
+            print("X_train: ", self.X_train[:3, :])
+            print("X_valid: ", self.X_valid[:3, :])
+            print("X_test: ", self.X_test[:3, :])
+        return self.X_train, self.y_train, self.X_valid, self.y_valid
+
+    def prepare_kfold_cross_validator(self, open_display=False):
+        # see idea： https://scikit-learn.org/stable/modules/cross_validation.html
+        k = 5  # 5 folds as default
+        c1 = IrisColumns.label.value
+        c2 = 'groups'
+        # loops = math.ceil(self.y_train.shape[0] / k)
+        # self.groups = np.repeat(np.arange(5), [loops], axis=0).reshape(5, loops).T.flatten()
+        df = pd.DataFrame(self.X_train)
+        df[c1] = self.y_train
+        df = df.sort_values([c1], ascending=True)
+        df = df.reset_index(drop=True, inplace=False)
+        df[c2] = df.apply(lambda x: x.name % k, axis=1)
+        df = df.sort_values([c2, c1], ascending=True)
+        X = df.drop([c1, c2], axis=1).to_numpy()
+        y = df[c1].to_numpy()
+        grp = df[c2].to_numpy()
+
         cv = KFold(k)
-        self.__plot_cv_indices(cv, X, y, groups, ax, k)  # training will sequentially access each shuffled group
-        plt.show()
-        return X, y, cv
+        if open_display:
+            # visualization
+            fig, ax = plt.subplots()
+            self.__plot_cv_indices(cv, X, y, grp, ax, k)  # training will sequentially access each shuffled group
+            plt.show()
+        return cv
 
     def __get_best_model(self, X, y, cv, mod, params, display_param_selection=False):
+        # see: https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
+        # see: https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter
         grid_search_cv = GridSearchCV(mod, params, cv=cv)
         grid_search_cv.fit(X, y)
         if display_param_selection:
             self.print_results(grid_search_cv)
-        return grid_search_cv.best_estimator_
-
-    def __model_selection(self, func, X, y, cv):
-        name, model = func(X, y, cv)
-        y_pred, cost = self.predict(model)
-        dic = self.metrics(y_pred)
-        return name, model, dic, y_pred, cost
-
-    def model_selection(self, ptr=8, pv=1, ptt=1, g=10,
-                        open_lr=True, open_gb=True, open_rm=True, open_mlp=True, open_svm=True, ):
-        X, y, cv = self.training_data_preparations(ptr, pv, ptt, g)
-        if open_lr:
-            name, model, dic, y_pred, cost = self.__model_selection(self.get_best_lr, X, y, cv)
-            print(name, ": ", dic, "cost:", cost)
-        if open_gb:
-            name, model, dic, y_pred, cost = self.__model_selection(self.get_best_gb, X, y, cv)
-            print(name, ": ", dic, "cost:", cost)
-        if open_rm:
-            name, model, dic, y_pred, cost = self.__model_selection(self.get_best_rm, X, y, cv)
-            print(name, ": ", dic, "cost:", cost)
-        if open_mlp:
-            name, model, dic, y_pred, cost = self.__model_selection(self.get_best_mlp, X, y, cv)
-            print(name, ": ", dic, "cost:", cost)
-        if open_svm:
-            name, model, dic, y_pred, cost = self.__model_selection(self.get_best_svm, X, y, cv)
-            print(name, ": ", dic, "cost:", cost)
-
-        pass
+        return grid_search_cv  # .best_estimator_
 
     @staticmethod
     def print_results(results):
@@ -249,41 +255,26 @@ class Foooo:
         for mean, std, params in zip(means, stds, results.cv_results_['params']):
             print('{} (+/-{}) for {}'.format(round(mean, 3), round(std * 2, 3), params))
 
-    def predict(self, model):
-        X_test = self.test_df.drop([IrisColumns.label.value], axis=1).to_numpy()
+    @staticmethod
+    def predict(model, X):
         start = time()
-        y_pred = model.predict(X_test)
+        y_pred = model.predict(X)
         cost = (time() - start) * 1000
-        return y_pred, str(round(cost, 1)) + "ms"
-
-    def metrics(self, y_pred):
-        y_test = self.test_df[IrisColumns.label.value].to_numpy()
-        return {'accuracy': round(accuracy_score(y_test, y_pred), 3),
-                'precision': round(precision_score(y_test, y_pred, average='macro'), 3),
-                'recall': round(recall_score(y_test, y_pred, average='macro'), 3)}
+        return y_pred, round(cost, 3)
 
     def get_best_lr(self, x, y, cv, display_param_selection=False):
         m = self.__get_best_model(x, y, cv, LogisticRegression(),
                                   {
-                                      'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000, 1.0e4]
+                                      'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000, 1e4]
                                   },
                                   display_param_selection)
         return 'LR', m
-
-    def get_best_rm(self, x, y, cv, display_param_selection=False):
-        m = self.__get_best_model(x, y, cv, RandomForestClassifier(),
-                                  {
-                                      'n_estimators': [5, 50, 250],
-                                      'max_depth': [2, 4, 8, 16, 32, None]
-                                  },
-                                  display_param_selection)
-        return 'RM', m
 
     def get_best_svm(self, x, y, cv, display_param_selection=False):
         m = self.__get_best_model(x, y, cv, SVC(),
                                   {
                                       'kernel': ['linear', 'rbf'],
-                                      'C': [0.1, 1, 10]
+                                      'C': [0.01, 0.1, 1, 10, 100, 1000, 1e4]
                                   },
                                   display_param_selection)
         return 'SVM', m
@@ -291,22 +282,31 @@ class Foooo:
     def get_best_mlp(self, x, y, cv, display_param_selection=False):
         m = self.__get_best_model(x, y, cv, MLPClassifier(),
                                   {
-                                      'hidden_layer_sizes': [(10,), (50,), (100,)],
+                                      'hidden_layer_sizes': [(10,), (20,), (50,), (100,), (200,)],
                                       'activation': ['relu', 'tanh', 'logistic'],
                                       'learning_rate': ['constant', 'invscaling', 'adaptive']
                                   },
                                   display_param_selection)
-        return 'Multi-layer Perceptron', m
+        return 'mlp', m
+
+    def get_best_rf(self, x, y, cv, display_param_selection=False):
+        m = self.__get_best_model(x, y, cv, RandomForestClassifier(),
+                                  {
+                                      'n_estimators': [1, 2, 5, 10, 20, 50, 100],
+                                      'max_depth': [2, 4, 8, 16, None]
+                                  },
+                                  display_param_selection)
+        return 'Forest', m
 
     def get_best_gb(self, x, y, cv, display_param_selection=False):
         m = self.__get_best_model(x, y, cv, GradientBoostingClassifier(),
                                   {
-                                      'n_estimators': [30, 50, 100],
-                                      'learning_rate': [0.003, 0.04, 0.5],
-                                      'max_depth': [2, 4, 6]
+                                      'n_estimators': [1, 2, 5, 10, 20],
+                                      'max_depth': [2, 4, 8, 16, None],
+                                      'learning_rate': [0.01, 0.1, 1, 10]
                                   },
                                   display_param_selection)
-        return 'Gradient Boosting', m
+        return 'Boosting', m
 
 
 if __name__ == '__main__':
