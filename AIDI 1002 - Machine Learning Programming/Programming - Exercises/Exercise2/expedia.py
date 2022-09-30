@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # df.to_csv("./data/expedia-personalized-sort/data/sample.csv")
     # tmp = df.copy(deep=True)
 
-    df = pd.read_csv("./data/expedia-personalized-sort/data/sample.csv")
+    df = pd.read_csv("data/expedia-personalized-sort/data/sample.csv")
     df = df.loc[df['price_usd'] < 5584]
     df = df.sort_values(['date_time']).reset_index(drop=True)
 

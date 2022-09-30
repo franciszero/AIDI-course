@@ -1,20 +1,12 @@
 # coding=utf-8
-import numpy as np
 import pandas as pd
 import re
-import string
-import math
 import unicodedata
 import nltk
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 from nltk.tokenize.toktok import ToktokTokenizer
-import bs4
 from bs4 import BeautifulSoup
-from NLP.contractions import CONTRACTION_MAP
+from Exercise2.NLP.contractions import CONTRACTION_MAP
 import spacy.cli
-
-from gensim.parsing.preprocessing import remove_stopwords, STOPWORDS
 
 # nltk.download('stopwords')
 # nltk.download('omw-1.4')

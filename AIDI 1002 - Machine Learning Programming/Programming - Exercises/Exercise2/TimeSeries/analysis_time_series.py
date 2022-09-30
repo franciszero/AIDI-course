@@ -1,5 +1,4 @@
 # coding=utf-8
-from unicodedata import decimal
 
 import pandas as pd
 import numpy as np
@@ -11,11 +10,10 @@ from matplotlib.ticker import FormatStrFormatter
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KernelDensity
 from statsmodels.tsa.seasonal import seasonal_decompose
-from TimeSeries.KDE_exercise import my_scores
+from Exercise2.TimeSeries.KDE_exercise import my_scores
 import mplfinance as mpf
 
 import matplotlib
-from decimal import Decimal
 
 matplotlib.rc('font', size=5)
 
