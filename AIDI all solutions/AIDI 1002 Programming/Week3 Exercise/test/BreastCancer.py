@@ -27,5 +27,10 @@ matplotlib.rc('font', size=5)
 
 class Cancer:
     def __init__(self):
+        # from sklearn.datasets import load_breast_cancer as LBC
+        #
+        # cancer = LBC()
+        # X = cancer['data']
+        # y = cancer['target']
         self.df0 = pd.read_csv("./data/breast_cancer.csv.csv")
         self.dfx = self.df0.drop(['Formatted Date', 'Daily Summary', 'Summary', 'Precip Type'], axis=1)
