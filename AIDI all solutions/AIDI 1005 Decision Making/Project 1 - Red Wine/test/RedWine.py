@@ -86,3 +86,67 @@ class RedWine:
         models.append(('LDA', LinearDiscriminantAnalysis()))
 
         return models
+
+    def get_best_lr(self, x, y, cv, display_param_selection=False):
+        m = self.__get_best_model(x, y, cv, LogisticRegression(),
+                                  {
+                                      'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000, 1e4]
+                                  },
+                                  display_param_selection)
+        return 'LR', m
+
+    def get_best_svm(self, x, y, cv, display_param_selection=False):
+        m = self.__get_best_model(x, y, cv, SVC(),
+                                  {
+                                      'kernel': ['linear', 'rbf'],
+                                      'C': [0.01, 0.1, 1, 10, 100, 1000, 1e4]
+                                  },
+                                  display_param_selection)
+        return 'SVM', m
+
+    def get_best_mlp(self, x, y, cv, display_param_selection=False):
+        m = self.__get_best_model(x, y, cv, MLPClassifier(),
+                                  {
+                                      'hidden_layer_sizes': [(10,), (20,), (50,), (100,), (200,)],
+                                      'activation': ['relu', 'tanh', 'logistic'],
+                                      'learning_rate': ['constant', 'invscaling', 'adaptive']
+                                  },
+                                  display_param_selection)
+        return 'mlp', m
+
+    def get_best_rf(self, x, y, cv, display_param_selection=False):
+        m = self.__get_best_model(x, y, cv, RandomForestClassifier(),
+                                  {
+                                      'n_estimators': [1, 2, 5, 10, 20, 50, 100],
+                                      'max_depth': [2, 4, 8, 16, None]
+                                  },
+                                  display_param_selection)
+        return 'Forest', m
+
+    def get_best_gb(self, x, y, cv, display_param_selection=False):
+        m = self.__get_best_model(x, y, cv, GradientBoostingClassifier(),
+                                  {
+                                      'n_estimators': [1, 2, 5, 10, 20],
+                                      'max_depth': [2, 4, 8, 16, None],
+                                      'learning_rate': [0.01, 0.1, 1, 10]
+                                  },
+                                  display_param_selection)
+        return 'Boosting', m
+
+    def __get_best_model(self, X, y, cv, mod, params, display_param_selection=False):
+        # see: https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
+        # see: https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter
+        grid_search_cv = GridSearchCV(mod, params, cv=cv)
+        grid_search_cv.fit(X, y)
+        if display_param_selection:
+            self.print_results(grid_search_cv)
+        return grid_search_cv  # .best_estimator_
+
+    @staticmethod
+    def print_results(results):
+        print('BEST PARAMS: {}\n'.format(results.best_params_))
+
+        means = results.cv_results_['mean_test_score']
+        stds = results.cv_results_['std_test_score']
+        for mean, std, params in zip(means, stds, results.cv_results_['params']):
+            print('{} (+/-{}) for {}'.format(round(mean, 3), round(std * 2, 3), params))
