@@ -62,39 +62,6 @@ class Weather:
         foo.correlation_analysis(df)
         pass
 
-    def mutual_information_classification(self):
-        dfx = self.df.drop(['Formatted Date', 'Encoded Daily Summary'], axis=1)
-        dfy = self.df['Encoded Daily Summary']
-        X = dfx.to_numpy()
-        y = dfy.to_numpy()
-        mi_score = mutual_info_classif(X, y)
-        print("%25s\t%25s" % ('colume', 'mutual information score'))
-        for i, col in enumerate(dfx.columns):
-            print("%25s\t%25s" % (col, "%.3f" % mi_score[i]))
-        return X, y
-
-    def mutual_information_regression(self):
-        dfx = self.df.drop(['Formatted Date', 'Temperature (C)'], axis=1)
-        dfy = self.df['Temperature (C)']
-        X = dfx.to_numpy()
-        y = dfy.to_numpy()
-        mi_score = mutual_info_regression(X, y)
-        print("%25s\t%25s" % ('colume', 'mutual information score'))
-        for i, col in enumerate(dfx.columns):
-            print("%25s\t%25s" % (col, "%.3f" % mi_score[i]))
-        return X, y
-
-    def variance_threshold(self):
-        selector = VarianceThreshold()
-        dfx = foo.df.drop(['Formatted Date'], axis=1)
-        selector.fit(dfx)
-        print("%25s\t%10s" % ('colume', 'variances'))
-        for i, col in enumerate(dfx.columns):
-            print("%25s\t%10s" % (col, "%.3f" % selector.variances_[i]))
-        X = dfx.transform(dfx.to_numpy())
-        return X
-
-    # Correlation Analysis
     def feature_importance(self, X, y):
         clf = RandomForestClassifier(n_estimators=50)
         model = clf.fit(X, y)

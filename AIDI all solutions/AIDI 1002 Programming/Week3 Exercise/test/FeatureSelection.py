@@ -1,7 +1,8 @@
 #
+import pandas as pd
 from numpy import array
 from sklearn.datasets import load_iris
-from sklearn.feature_selection import SelectKBest, chi2, f_classif
+from sklearn.feature_selection import SelectKBest, chi2, f_classif, VarianceThreshold, mutual_info_regression
 from sklearn.feature_selection import mutual_info_classif
 from sklearn.datasets import make_regression
 from sklearn.feature_selection import SelectKBest
@@ -25,9 +26,59 @@ class FeatureSelection:
                "feature selected", fs.get_support(indices=True))
               )
 
+    # Chi-square Test
+    # see: https://www.analyticsvidhya.com/blog/2020/10/feature-selection-techniques-in-machine-learning/
+    # The Chi-square test is used for categorical features in a dataset. We calculate Chi-square between each feature and the target and select the desired number of features with the best Chi-square scores. In order to correctly apply the chi-squared in order to test the relation between various features in the dataset and the target variable, the following conditions have to be met: the variables have to be categorical, sampled independently and values should have an expected frequency greater than 5.
+    def chi_square_test(self, X, y, k='all'):
+        skb = SelectKBest(chi2, k=k)
+        skb.fit(X, y)
+
+        df = pd.DataFrame(X.columns, columns=['name'])
+        df['scores'] = skb.scores_
+        df = df.sort_values(['scores'], ascending=False).reset_index(drop=True, inplace=False)
+        print("%25s\t%15s" % ('colume', 'score'))
+        for i, col in enumerate(df['name']):
+            print("%25s\t%15s" % (col, "%.3f" % df['scores'][i]))
+        new_x = skb.transform(X)
+        selected_feature_names = df['name'].values[:k]
+        return selected_feature_names, new_x
+
+    def mutual_information_classification(self, dfx, dfy):
+        X = dfx.to_numpy()
+        y = dfy.to_numpy()
+        mi_score = mutual_info_classif(X, y)
+
+        df = pd.DataFrame(dfx.columns, columns=['name'])
+        df['scores'] = mi_score
+        df = df.sort_values(['scores'], ascending=False).reset_index(drop=True, inplace=False)
+
+        print("%25s\t%25s" % ('colume', 'mutual information score'))
+        for i, col in enumerate(df['name']):
+            print("%25s\t%25s" % (col, "%.3f" % df['scores'][i]))
+        return X, y
+
+    def mutual_information_regression(self, dfx, dfy):
+        X = dfx.to_numpy()
+        y = dfy.to_numpy()
+        mi_score = mutual_info_regression(X, y)
+        print("%25s\t%25s" % ('colume', 'mutual information score'))
+        for i, col in enumerate(dfx.columns):
+            print("%25s\t%25s" % (col, "%.3f" % mi_score[i]))
+        return X, y
+
+    def variance_threshold(self, dfx):
+        selector = VarianceThreshold()
+        selector.fit(dfx)
+        print("%25s\t%10s" % ('colume', 'variances'))
+        for i, col in enumerate(dfx.columns):
+            print("%25s\t%10s" % (col, "%.3f" % selector.variances_[i]))
+        X = dfx.transform(dfx.to_numpy())
+        return X
+
     """
     code_example_applying_feature_selection
     """
+
     @staticmethod
     def code_example_applying_feature_selection():
         # pearson's correlation feature selection for numeric input and numeric output

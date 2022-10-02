@@ -22,11 +22,21 @@ and apply following feature selection techniques:
 of features and why ?
 """
 if __name__ == '__main__':
+    fs = FeatureSelection()
     foo = Weather()
     # foo.exploratory()
     foo.correlation_analysis()
-    X = foo.variance_threshold()
-    X, y = foo.mutual_information_regression()
-    X, y = foo.mutual_information_classification()
-    foo.feature_importance(X, y)
+
+    dfx = foo.df.drop(['Formatted Date'], axis=1)
+    X = fs.variance_threshold(dfx)
+
+    dfx1 = foo.df.drop(['Formatted Date', 'Temperature (C)'], axis=1)
+    dfy1 = foo.df['Temperature (C)']
+    X1, y1 = fs.mutual_information_regression(dfx1, dfy1)
+
+    dfx2 = foo.df.drop(['Formatted Date', 'Encoded Daily Summary'], axis=1)
+    dfy2 = foo.df['Encoded Daily Summary']
+    X2, y2 = fs.mutual_information_classification(dfx2, dfy2)
+
+    foo.feature_importance(X2, y2)
     pass
