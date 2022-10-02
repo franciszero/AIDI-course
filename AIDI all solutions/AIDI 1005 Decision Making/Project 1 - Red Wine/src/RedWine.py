@@ -170,6 +170,9 @@ class RedWine:
         buffer = []
         n = None
         model = None
+
+        start = time()
+        print(get_best_model.__func__.__name__, 'processing...')
         for _ in range(r):
             X_train, y_train, X_valid, y_valid = \
                 self.valid_data_proportion(ptr, pv, ptt, g=g, seed=random.randint(1, 1000), open_display=False)
@@ -177,10 +180,9 @@ class RedWine:
             n, model = get_best_model(X_train, y_train, clf, display_param_selection=False)
             result = self.validate(model, X_valid, y_valid)
             buffer.append(np.array(result))
-
             if open_display:
                 self.print_result((n, model, result))
-
+        print(get_best_model.__func__.__name__, 'processed within ', (time() - start) * 1000, ' ms')
         r = np.array(buffer).mean(axis=0)
 
         if open_display:
