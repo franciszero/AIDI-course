@@ -39,7 +39,7 @@ pd.set_option('display.max_columns', 20)
 pd.set_option('display.width', 1000)
 
 
-class Foooo:
+class RedWine:
     def __init__(self):
         self.df = pd.read_csv('./data/winequality-red.csv')
         print(self.df.info())

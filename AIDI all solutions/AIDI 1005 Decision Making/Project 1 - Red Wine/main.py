@@ -30,10 +30,10 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 import os
 import warnings
 
-from test.Foooo import Foooo
+from test.RedWine import RedWine
 # %matplotlib inline
 
 
 if __name__ == '__main__':
-    foo = Foooo()
+    foo = RedWine()
 
