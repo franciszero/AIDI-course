@@ -67,10 +67,6 @@ class RedWine:
         # feature correlations heatmap
         f, ax = plt.subplots(figsize=(10, 10))
         sns.heatmap(self.df.drop('quality', axis=1).corr(), annot=True, linewidths=.5, fmt='.1f', ax=ax)
-
-        # feature selection method 1
-        le = VarianceThreshold()
-        tmp = le.fit_transform(self.dfx)
         return
 
     def feature_importance(self):
@@ -111,18 +107,6 @@ class RedWine:
             print("X_valid: ", self.X_valid[:3, :])
             print("X_test: ", self.X_test[:3, :])
         return self.X_train, self.y_train, self.X_valid, self.y_valid
-
-    def get_models(self):
-        models = []
-        models.append(("LR", LogisticRegression()))
-        models.append(("NB", GaussianNB()))
-        models.append(("KNN", KNeighborsClassifier()))
-        models.append(("DT", DecisionTreeClassifier()))
-        models.append(("SVM rbf", SVC()))
-        models.append(("SVM linear", SVC(kernel='linear')))
-        models.append(('LDA', LinearDiscriminantAnalysis()))
-
-        return models
 
     def get_best_lr(self, x, y, cv, display_param_selection=False):
         m = self.__get_best_model(x, y, cv, LogisticRegression(),
@@ -170,14 +154,39 @@ class RedWine:
                                   display_param_selection)
         return 'Boosting', m
 
-    def __get_best_model(self, X, y, cv, mod, params, display_param_selection=False):
+    def __get_best_model(self, x, y, cv, mod, params, display_param_selection=False):
         # see: https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
         # see: https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter
         grid_search_cv = GridSearchCV(mod, params, cv=cv)
-        grid_search_cv.fit(X, y)
+        grid_search_cv.fit(x, y)
         if display_param_selection:
             self.print_results(grid_search_cv)
         return grid_search_cv  # .best_estimator_
+
+    def model_selection(self, get_best_model, ptr, pv, ptt, g=10, r=10, open_display=False):
+        if open_display:
+            foo.print_title()
+
+        buffer = []
+        n = None
+        model = None
+        for _ in range(r):
+            X_train, y_train, X_valid, y_valid = \
+                self.valid_data_proportion(ptr, pv, ptt, g=g, seed=random.randint(1, 1000), open_display=False)
+            clf = self.prepare_kfold_cross_validator(open_display=False)
+            n, model = get_best_model(X_train, y_train, clf, display_param_selection=False)
+            result = foo.validate(model, X_valid, y_valid)
+            buffer.append(np.array(result))
+
+            if open_display:
+                foo.print_result((n, model, result))
+
+        r = np.array(buffer).mean(axis=0)
+
+        if open_display:
+            foo.print_result(("%s avg" % n, model, r))
+            print("")
+        return n, model, r
 
     @staticmethod
     def print_results(results):
@@ -200,14 +209,14 @@ class RedWine:
               ("%s" % name, "%.3f" % r[0], "", "%.3f" % r[2], "%.3f" % r[3], "%.3f" % r[4], "%.3f ms" % r[5]))
 
     @staticmethod
-    def predict(model, X):
+    def predict(model, x):
         start = time()
-        y_pred = model.predict(X)
+        y_pred = model.predict(x)
         cost = (time() - start) * 1000
         return y_pred, round(cost, 3)
 
-    def validate(self, cv, X, y):
-        y_pred, cost = self.predict(cv, X)
+    def validate(self, cv, x, y):
+        y_pred, cost = self.predict(cv, x)
         # collect params
         mean = round(cv.cv_results_['mean_test_score'][cv.best_index_], 3)
         std = round(cv.cv_results_['std_test_score'][cv.best_index_] * 2, 3)
@@ -244,14 +253,14 @@ class RedWine:
 
     @staticmethod
     # see: https://scikit-learn.org/stable/auto_examples/model_selection/plot_cv_indices.html#sphx-glr-auto-examples-model-selection-plot-cv-indices-py
-    def __plot_cv_indices(cv, X, y, group, ax, n_splits, lw=10):
+    def __plot_cv_indices(cv, x, y, group, ax, n_splits, lw=10):
         """Create a sample plot for indices of a cross-validation object."""
 
         ii = 0
         # Generate the training/testing visualizations for each CV split
-        for ii, (tr, tt) in enumerate(cv.split(X=X, y=y, groups=group)):
+        for ii, (tr, tt) in enumerate(cv.split(X=x, y=y, groups=group)):
             # Fill in indices with the training/src groups
-            indices = np.array([np.nan] * len(X))
+            indices = np.array([np.nan] * len(x))
             indices[tt] = 1
             indices[tr] = 0
 
@@ -268,8 +277,8 @@ class RedWine:
             )
 
         # Plot the data classes and groups at the end
-        ax.scatter(range(len(X)), [ii + 1.5] * len(X), c=y, marker="_", lw=lw, cmap=plt.cm.Paired)
-        ax.scatter(range(len(X)), [ii + 2.5] * len(X), c=group, marker="_", lw=lw, cmap=plt.cm.Paired)
+        ax.scatter(range(len(x)), [ii + 1.5] * len(x), c=y, marker="_", lw=lw, cmap=plt.cm.Paired)
+        ax.scatter(range(len(x)), [ii + 2.5] * len(x), c=group, marker="_", lw=lw, cmap=plt.cm.Paired)
 
         # Formatting
         yticklabels = list(range(n_splits)) + ["iris spices", "random group"]
@@ -284,6 +293,7 @@ class RedWine:
         ax.set_title("{} : {}".format(type(cv).__name__, "training will sequentially access each shuffled group"),
                      fontsize=15)
         return ax
+
 
 if __name__ == '__main__':
     foo = RedWine()
