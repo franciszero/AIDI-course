@@ -12,7 +12,8 @@ from sklearn.neighbors import KernelDensity
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.tsa.seasonal import seasonal_decompose
 import mplfinance as mpf
-from sklearn.feature_selection import mutual_info_classif as MIC
+from sklearn.feature_selection import mutual_info_classif as MIC, mutual_info_classif, mutual_info_regression, \
+    VarianceThreshold
 
 import matplotlib
 # %matplotlib
@@ -54,31 +55,50 @@ class Weather:
             print()
 
     def correlation_analysis(self, df):
-        corr = df.corr()
-        f, ax = plt.subplots(figsize=(20, 20))
-        sns.set(font_scale=1.4)
-        cmap = sns.diverging_palette(h_neg=210, h_pos=350, s=90, l=30, as_cmap=True)
-        sns.heatmap(df.corr(), annot=True, ax=ax, cbar_kws={"orientation": "horizontal"},
-                    annot_kws={"size": 16})  # , linewidths=.5, fmt='.1f')
+        foo.correlation_analysis(foo.df0)
+        print(foo.df.columns)
+        df = foo.df.drop(['Apparent Temperature (C)'], axis=1)
+        df.head()
+        foo.correlation_analysis(df)
         pass
 
-    def mic(self, X, y):
-        mi_score = MIC(X, y)
-        print("mi_score: ", mi_score)
-        return mi_score
+    def mutual_information_classification(self):
+        dfx = self.df.drop(['Formatted Date', 'Encoded Daily Summary'], axis=1)
+        dfy = self.df['Encoded Daily Summary']
+        X = dfx.to_numpy()
+        y = dfy.to_numpy()
+        mi_score = mutual_info_classif(X, y)
+        print("%25s\t%25s" % ('colume', 'mutual information score'))
+        for i, col in enumerate(dfx.columns):
+            print("%25s\t%25s" % (col, "%.3f" % mi_score[i]))
+        return X, y
+
+    def mutual_information_regression(self):
+        dfx = self.df.drop(['Formatted Date', 'Temperature (C)'], axis=1)
+        dfy = self.df['Temperature (C)']
+        X = dfx.to_numpy()
+        y = dfy.to_numpy()
+        mi_score = mutual_info_regression(X, y)
+        print("%25s\t%25s" % ('colume', 'mutual information score'))
+        for i, col in enumerate(dfx.columns):
+            print("%25s\t%25s" % (col, "%.3f" % mi_score[i]))
+        return X, y
 
     def variance_threshold(self):
-        pass
+        selector = VarianceThreshold()
+        dfx = foo.df.drop(['Formatted Date'], axis=1)
+        selector.fit(dfx)
+        print("%25s\t%10s" % ('colume', 'variances'))
+        for i, col in enumerate(dfx.columns):
+            print("%25s\t%10s" % (col, "%.3f" % selector.variances_[i]))
+        X = dfx.transform(dfx.to_numpy())
+        return X
 
     # Correlation Analysis
-    def feature_importance(self):
-        X = self.dfx.drop(['diagnosis'], axis=1)
-        y = self.dfx.diagnosis
-
+    def feature_importance(self, X, y):
         clf = RandomForestClassifier(n_estimators=50)
         model = clf.fit(X, y)
-
-        feat_importances = pd.DataFrame(model.feature_importances_, index=x.columns, columns=["Importance"])
+        feat_importances = pd.DataFrame(model.feature_importances_, index=dfx.columns, columns=["Importance"])
         feat_importances.sort_values(by='Importance', ascending=False, inplace=True)
         feat_importances.plot(kind='bar')
 
