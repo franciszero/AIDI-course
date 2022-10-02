@@ -165,7 +165,7 @@ class RedWine:
 
     def model_selection(self, get_best_model, ptr, pv, ptt, g=10, r=10, open_display=False):
         if open_display:
-            foo.print_title()
+            self.print_title()
 
         buffer = []
         n = None
@@ -175,16 +175,16 @@ class RedWine:
                 self.valid_data_proportion(ptr, pv, ptt, g=g, seed=random.randint(1, 1000), open_display=False)
             clf = self.prepare_kfold_cross_validator(open_display=False)
             n, model = get_best_model(X_train, y_train, clf, display_param_selection=False)
-            result = foo.validate(model, X_valid, y_valid)
+            result = self.validate(model, X_valid, y_valid)
             buffer.append(np.array(result))
 
             if open_display:
-                foo.print_result((n, model, result))
+                self.print_result((n, model, result))
 
         r = np.array(buffer).mean(axis=0)
 
         if open_display:
-            foo.print_result(("%s avg" % n, model, r))
+            self.print_result(("%s avg" % n, model, r))
             print("")
         return n, model, r
 

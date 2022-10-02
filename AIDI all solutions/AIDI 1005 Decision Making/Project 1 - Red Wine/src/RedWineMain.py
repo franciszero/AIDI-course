@@ -47,7 +47,9 @@ if __name__ == '__main__':
     lst = [np.array((6, 2, 2, 10, 10)), np.array((8, 1, 1, 10, 10))]
     for i, (tr, v, tt, grp, interval) in enumerate(lst):
         foo.test_data_proportion(tr, v, tt, g=grp, seed=999, open_display=False)
-        arr = [foo.model_selection(foo.get_best_lr, tr, v, tt, g=grp, r=interval, open_display=True)]
+        arr = [foo.model_selection(foo.get_best_lr, tr, v, tt, g=grp, r=interval, open_display=True),
+               foo.model_selection(foo.get_best_svm, tr, v, tt, g=grp, r=interval, open_display=True),
+               ]
 
         print("Now the best model is")
         best_model_name = None
