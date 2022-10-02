@@ -74,7 +74,7 @@ if __name__ == '__main__':
     '''
     data = df[['price_usd', 'srch_booking_window', 'srch_saturday_night_bool']]
     n_cluster = range(1, 20)
-    kmeans = [KMeans(n_clusters=i).fit(data) for i in n_cluster]  # test how many clusters is the best choice
+    kmeans = [KMeans(n_clusters=i).fit(data) for i in n_cluster]  # src how many clusters is the best choice
     scores = [kmeans[i].score(data) for i in range(len(kmeans))]
 
     # fig, ax = plt.subplots(figsize=(10, 6))

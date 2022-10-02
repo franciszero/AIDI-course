@@ -121,7 +121,7 @@ class Foooo:
         ii = 0
         # Generate the training/testing visualizations for each CV split
         for ii, (tr, tt) in enumerate(cv.split(X=X, y=y, groups=group)):
-            # Fill in indices with the training/test groups
+            # Fill in indices with the training/src groups
             indices = np.array([np.nan] * len(X))
             indices[tt] = 1
             indices[tr] = 0
@@ -182,7 +182,7 @@ class Foooo:
         :return:
         """
         if ptr + pv + ptt != g:
-            print("Abort: train proportion + valid proportion + test proportion != ", g)
+            print("Abort: train proportion + valid proportion + src proportion != ", g)
             exit(0)
         col_t = IrisColumns.label.value
         X = self.iris.drop([col_t], axis=1).to_numpy()
@@ -197,7 +197,7 @@ class Foooo:
 
     def valid_data_proportion(self, ptr=8, pv=1, ptt=1, g=10, seed=999, open_display=False):
         if ptr + pv + ptt != g:
-            print("Abort: train proportion + valid proportion + test proportion != ", g)
+            print("Abort: train proportion + valid proportion + src proportion != ", g)
             exit(0)
         self.X_train, self.X_valid, self.y_train, self.y_valid = \
             train_test_split(self.X_modeling, self.y_modeling, test_size=pv / (ptr + pv), random_state=seed)

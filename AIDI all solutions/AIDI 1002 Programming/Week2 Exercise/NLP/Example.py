@@ -60,7 +60,7 @@ clean_questions.groupby("class_label").count()
 ### Our data is clean, now it needs to be prepared
 Now that our inputs are more reasonable, let's transform our inputs in a way our model can understand. This implies:
 - Tokenizing sentences to a list of separate words
-- Creating a train test split
+- Creating a train src split
 - Inspecting our data a little more to validate results
 '''
 from nltk.tokenize import RegexpTokenizer

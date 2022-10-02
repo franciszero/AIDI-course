@@ -110,7 +110,7 @@ if __name__ == '__main__':
                 best_model_name = name
         print("The best model is {}\n".format(best_model_name))
 
-        print("Apply the test dataset on the best model {}".format(best_model_name))
+        print("Apply the src dataset on the best model {}".format(best_model_name))
         params = validate(foo, best_model, foo.X_test, foo.y_test)
         print_title()
         print_result((best_model_name, best_model, params))

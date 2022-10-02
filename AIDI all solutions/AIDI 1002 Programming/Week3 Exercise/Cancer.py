@@ -16,7 +16,7 @@ from test.FeatureSelection import FeatureSelection
 Question 2. Classification Problem with Categorical Data:
     Dataset: Breast Cancer (Attached below)
     Apply following feature selection techniques and plot the feature importance graph for each technique.
-        ○ Chi Square test 
+        ○ Chi Square src 
         ○ Mutual Information
 Comment on the usefulness of features extracted from the feature selection techniques.
 """

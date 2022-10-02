@@ -75,7 +75,7 @@ def plot_cv_indices(cv, X, y, group, ax, n_splits, lw=10):
 
     # Generate the training/testing visualizations for each CV split
     for ii, (tr, tt) in enumerate(cv.split(X=X, y=y, groups=group)):
-        # Fill in indices with the training/test groups
+        # Fill in indices with the training/src groups
         indices = np.array([np.nan] * len(X))
         indices[tt] = 1
         indices[tr] = 0
