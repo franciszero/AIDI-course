@@ -1,9 +1,6 @@
 absl-py==1.2.0
 adjustText==0.7.3
 alabaster==0.7.12
-anaconda-client==1.9.0
-anaconda-navigator==2.1.1
-anaconda-project==0.10.2
 anyio==3.5.0
 appdirs==1.4.4
 applaunchservices==0.2.1
@@ -48,14 +45,6 @@ click==8.0.3
 cloudpickle==2.0.0
 clyent==1.2.2
 colorama==0.4.4
-conda==4.14.0
-conda-build==3.21.7
-conda-content-trust==0+unknown
-conda-pack==0.6.0
-conda-package-handling==1.7.3
-conda-repo-cli==1.0.4
-conda-token==0.3.0
-conda-verify==3.4.2
 contextlib2==0.6.0.post1
 cookiecutter==1.7.2
 cryptography==3.4.8
@@ -70,7 +59,6 @@ debugpy==1.5.1
 decorator==5.1.1
 defusedxml==0.7.1
 diff-match-patch==20200713
-distributed==2021.10.0
 docutils==0.17.1
 en-core-web-lg==3.4.0
 en-core-web-sm==3.4.0
@@ -201,7 +189,6 @@ pexpect==4.8.0
 phik==0.12.2
 pickleshare==0.7.5
 Pillow==8.4.0
-pip==22.2.2
 pkginfo==1.8.2
 pluggy==1.0.0
 ply==3.11
@@ -260,7 +247,6 @@ scikit-learn-intelex==2021.20211201.94539
 scipy==1.7.3
 seaborn==0.11.2
 Send2Trash==1.8.0
-setuptools==58.0.4
 shellingham==1.5.0
 simplegeneric==0.8.1
 singledispatch==3.7.0
@@ -334,7 +320,6 @@ wcwidth==0.2.5
 webencodings==0.5.1
 websocket-client==0.58.0
 Werkzeug==2.0.2
-wheel==0.37.1
 whichcraft==0.6.1
 widgetsnbextension==3.5.1
 wrapt==1.12.1
