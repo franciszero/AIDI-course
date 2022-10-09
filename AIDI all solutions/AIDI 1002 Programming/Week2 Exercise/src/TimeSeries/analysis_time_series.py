@@ -10,7 +10,7 @@ from matplotlib.ticker import FormatStrFormatter
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KernelDensity
 from statsmodels.tsa.seasonal import seasonal_decompose
-from Exercise2.TimeSeries.KDE_exercise import my_scores
+from TimeSeries.KDE_exercise import my_scores
 import mplfinance as mpf
 
 import matplotlib
