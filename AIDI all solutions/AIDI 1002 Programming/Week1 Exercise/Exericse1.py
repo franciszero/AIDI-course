@@ -23,20 +23,21 @@ def solution1(n, c, is_debug=False):
 
 
 def solution2(n, c, is_debug=False):
+    # c = bytes(c.encode())
     # init the right bound
     r = n - 1
     # fill in the matrix
-    mat = lil_matrix((n, n), dtype=bytes)
+    mat = lil_matrix((n, n) , dtype=str)
     for i in range(n):
-        mat[i, 0] = bytes(c)
-        mat[i, i] = bytes(c)
-        mat[i, r] = bytes(c)
-        mat[i, r - i] = bytes(c)
+        mat[i, 0] = c
+        mat[i, i] = c
+        mat[i, r] = c
+        mat[i, r - i] = c
     # print it
     if is_debug:
         print(mat.nnz)
         df = pd.DataFrame(mat.toarray())
-        print(df)
+        print(df.to_string(index=False, header=False))
 
 
 def get_time_cost(n, c, solution, if_print=False, i=1):
