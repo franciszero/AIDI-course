@@ -1,1 +1,1 @@
-web: gunicorn app:flapp
+web: gunicorn app:app
