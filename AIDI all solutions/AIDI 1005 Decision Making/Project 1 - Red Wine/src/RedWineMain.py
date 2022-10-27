@@ -89,7 +89,7 @@ if __name__ == '__main__':
     }
     kf1 = RedWine(LinearRegression())
     kf1.eda_dfx_scaling()
-    kf1.outlier_removal(debug_log=False)
+    kf1.outlier_removal(debug_log=True)
     # skb
     skb = SelectKBest(score_func=f_classif, k=kf1.dfx.shape[1] - 1)
     skb.fit(kf1.dfx, kf1.dfy)

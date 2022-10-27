@@ -6,6 +6,9 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import math
 
+a = np.array([-3, 2, 2, 5]).reshape(-1, 2)
+np.linalg.inv(a)
+
 
 def numerical_gradient(f, P):
     grad = np.zeros_like(P)
@@ -84,7 +87,7 @@ def plot_gradient_path(ax, t1, t2, clr):
     ax.plot(T1, T2, c=clr)
 
 
-T1,T2,T3=gradient_decent(2,3,alpha=0.001)
+T1, T2, T3 = gradient_decent(2, 3, alpha=0.001)
 # plot_gradient_path(ax1, T1, T2, clr='r')
 
 T1, T2, T3 = gradient_decent(2, 3, alpha=0.1)
