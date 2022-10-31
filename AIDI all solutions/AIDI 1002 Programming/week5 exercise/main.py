@@ -164,3 +164,13 @@ bottom, upper, left, right = getRange_familyCar(my_df)
 foo = Foo(my_df, bottom, upper, left, right)
 foo.greedy_search()
 
+def classify_instance_byEllipsoid(min_price, max_price, min_engine, max_engine, gdf_instance):
+    cx = (min_engine + max_engine) / 2
+    cy = (min_price + max_price) / 2
+    r1 = (max_engine - min_engine) / 2
+    r2 = (max_price - min_price) / 2
+    val = (x-cx)**2/r1**2+(y-cy)**2/r2**2
+    if val<=1:
+        return 1
+    else:
+        return 0
