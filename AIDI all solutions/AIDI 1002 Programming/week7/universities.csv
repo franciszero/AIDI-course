@@ -1,0 +1,11 @@
+School,Type,MedianSAT,AcceptanceRate,ExpendituresPerStudent,Top10Percent_HS,Graduation_percent
+Amherst,LibArts,1315,0.22,26636,0.85,0.93
+Barnard,LibArts,1220,0.53,17653,0.69,0.8
+Bates,LibArts,1240,0.36,17554,0.58,0.88
+Berkeley,University,1176,0.37,23665,0.95,0.68
+Bowdoin,LibArts,1300,0.24,25703,0.78,0.9
+Brown,University,1281,0.24,24201,0.8,0.9
+ByrnMawr,LibArts,1255,0.56,18847,0.7,0.84
+CalTech,University,1400,0.31,102262,0.98,0.75
+UCLA,University,1142,0.43,26859,0.96,0.61
+UNC,University,1109,0.32,19684,0.82,0.73

@@ -35,6 +35,8 @@ pd.set_option('display.max_columns', 30)
 pd.set_option('display.width', 2000)
 
 
+make_score()
+
 class Foo:
     def __init__(self):
         self.df = pd.read_excel('./data/Wholesale customers data.xlsx')
