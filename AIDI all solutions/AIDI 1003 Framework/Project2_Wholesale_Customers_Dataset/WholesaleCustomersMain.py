@@ -10,15 +10,17 @@ import random as rd
 import seaborn as sns
 import warnings
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+import category_encoders as ce
 from time import time
 from xgboost import *
-from scipy.stats import normaltest
+from scipy.stats import normaltest, linregress
 from sklearn.svm import SVC, SVR
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import *
 from sklearn.cluster import *
 from sklearn.ensemble import *
-from sklearn.datasets import load_digits, make_hastie_10_2
+from sklearn.datasets import load_digits, make_hastie_10_2, load_breast_cancer
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression, LinearRegression
@@ -28,6 +30,10 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import *
 from sklearn.feature_selection import *
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from pyclustering.cluster.kmeans import kmeans
+from pyclustering.utils.metric import distance_metric, type_metric
+from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
+
 # %matplotlib
 # %matplotlib inline
 warnings.filterwarnings("ignore")
@@ -35,81 +41,93 @@ pd.set_option('display.max_columns', 30)
 pd.set_option('display.width', 2000)
 
 
-make_score()
-
 class Foo:
     def __init__(self):
-        self.df = pd.read_excel('./data/Wholesale customers data.xlsx')
-        self.cols = self.df.columns
-        self.col_y = 'Channel'
+        self.df0 = pd.read_excel('./german_credit_data.xlsx')
+        self.df = self.df0.copy()
 
-    def get_X(self, return_dataframe=False):
-        f = self.df.drop([self.col_y], axis=1)
-        if return_dataframe:
-            return f
-        else:
-            return f.to_numpy()  # original X
+        self.cols_categorical = ['Sex', 'Housing', 'Purpose']
+        self.cols_numerical = ['Age', 'Job', 'Credit amount', 'Duration']
+        self.cols_numerical_skewing = ['Age', 'Credit amount', 'Duration']
+        self.cols_drop_off = ['Saving accounts', 'Checking account']
+        self.col_y = 'Risk'
 
-    def get_y(self, return_dataframe=False):
-        f = self.df[self.col_y]
-        if return_dataframe:
-            return f
-        else:
-            return LabelEncoder().fit_transform(f.to_numpy())
+        # clean rows with null values
+        self.df = self.df0.drop(self.cols_drop_off, axis=1)
+        # tmp = self.df[((self.df['Saving accounts'].isnull()) | (self.df['Checking account'].isnull()))]
+        # self.df = self.df.drop(tmp.index, axis=0)
+        # self.df = self.df.reset_index(drop=True, inplace=False)
+        self.X = self.df.drop([self.col_y], axis=1)
+        self.__label_encoding(self.col_y)
+        self.y = self.df[self.col_y]
 
-    def ref_cross_validation(self, plot=False):
-        X = self.get_X()
-        y = self.get_y()
+    def __null_value_visualization(self):
+        print(self.df.isnull().any())
+        plt.figure(figsize=(self.df.shape[1] / 2, 3), dpi=100)
+        sns.heatmap(self.df.isnull(), cmap="viridis")
 
-        # Create the RFE object and compute a cross-validated score.
-        svc = SVC(kernel="linear")
-        # The "accuracy" scoring shows the proportion of correct classifications
+    def feature_encoding(self):
+        encoder = ce.OneHotEncoder(cols=self.cols_categorical)
+        self.df = encoder.fit_transform(self.df)
+        pass
 
-        min_features_to_select = 1  # Minimum number of features to consider
-        rfecv = RFECV(
-            estimator=svc,
-            step=1,
-            cv=StratifiedKFold(5),
-            scoring="accuracy",
-            min_features_to_select=min_features_to_select,
-        )
-        rfecv.fit(X, y)
+    def onehot_encoding(self, x_train, x_test):
+        categorical_data = [var for var in x_train.columns if x_train[var].dtype == 'O']
 
-        if plot:
-            print("Optimal number of features : %d" % rfecv.n_features_)
+        encoder = ce.OneHotEncoder(cols=categorical_data)
+        x_train = encoder.fit_transform(x_train)
+        x_test = encoder.transform(x_test)
 
-            # Plot number of features VS. cross-validation scores
-            plt.figure()
-            plt.xlabel("Number of features selected")
-            plt.ylabel("Cross validation score (accuracy)")
-            plt.plot(
-                range(min_features_to_select,
-                      len(rfecv.grid_scores_) + min_features_to_select
-                      ),
-                rfecv.grid_scores_,
-            )
-            plt.show()
+        scaler = RobustScaler()
+        x_train = scaler.fit_transform(x_train)
+        x_test = scaler.transform(x_test)
+        return x_train, x_test
 
-        opt_X = rfecv.transform(X)
-        return opt_X
+    def feature_scaling(self, plot=False):
+        for col in self.df.columns:
+            if self.df[col].dtype != 'O':
+                self.scaling(self.df, col, action=None, plot=plot)
+                self.scaling(self.df, col, action='log', plot=plot)
+                self.scaling(self.df, col, action='minmax', plot=plot)
+        # for col in self.cols_numerical_skewing:
+        #     self.scaling(self.df, col, plot=plot)
+        #     self.scaling(self.df, col, action='log', plot=plot)
+        # for col in self.cols_numerical:
+        #     self.scaling(self.df, col, action='minmax', plot=plot)
+        # scaler = RobustScaler()
+        # en_df = scaler.fit_transform(en_df)
+        # # X_test = scaler.transform(X_test)
+        # en_df
+        pass
 
-    def feature_scaling(self, masks=np.array([]), plot=False):
-        i = 1
-        self.df = foo.scaling(self.df, i, action='minmax', plot=False)
-        for i, j in enumerate(foo.cols):
-            if np.isin(i, masks, invert=False):  # not in
-                continue
-            if i >= 2:
-                self.df = foo.scaling(self.df, i, action='log', plot=False)
-                self.df = foo.scaling(self.df, i, action='minmax', plot=False)
-        if plot:
-            for i, j in enumerate(foo.cols):
-                self.scaling(self.df, i, plot=True)
+    def check_category(self):
+        for _, col in enumerate(self.df.columns):
+            print("Column Name:", col)
+            print("Categorical display:")
+            print(pd.value_counts(self.df[col]))
+            print('-' * 100)
+
+    def check_null(self):
+        print(self.df.isnull().values.any())
+        plt.figure(figsize=(8, 3), dpi=100)
+        sns.heatmap(self.df.isnull(), cmap="viridis")
+
+    def __label_encoding(self, c):
+        self.df[c] = LabelEncoder().fit_transform(self.df[c])
+        pass
+
+    def label_encoding(self):
+        # print("label encoding:")
+        # print(self.df.head())
+        for col in self.df.columns:
+            if self.df[col].dtype == 'O':
+                self.__label_encoding(col)
+                # print("label encoding:%s\n%s" % (col, self.df.head()))
+        pass
 
     @staticmethod
-    def scaling(f, col_idx, action=None, plot=False):
-        c = f.columns[col_idx]
-        tmp = f[[c]]
+    def scaling(f, c, action=None, plot=False):
+        tmp = f[[c]].copy()
         if action == 'log':
             tmp = np.log(tmp + 1)
             color = 'r'
@@ -123,75 +141,92 @@ class Foo:
             color = 'k'
 
         if plot:
-            plt.figure(figsize=(7, 2), dpi=70)
-            sns.distplot(tmp, kde=True, color=color)
+            g = sns.displot(tmp, kde=True, color=color)
+            g.fig.set_figwidth(7)
+            g.fig.set_figheight(2)
             plt.title("\"%s\" scaling:%s, (min:%.2f, max:%.2f)" % (c, action, tmp.min(), tmp.max()))
             plt.show()
         f[c] = tmp
         return f
 
     @staticmethod
-    def clustering_kmeans(df, n=1):
-        return KMeans(n_clusters=n, init='random', n_init=10, max_iter=300, tol=0.0001, verbose=0, random_state=0,
-                      copy_x=True, algorithm='full').fit(df).labels_
+    def search_cv(model, params, fold, verbose=0):
+        return RandomizedSearchCV(model, params, cv=fold, verbose=verbose, return_train_score=True, )
+        # return RandomizedSearchCV(model, params, cv=fold, verbose=0,
+        #                           scoring=scoring, refit=list(scoring.items())[0][0], return_train_score=True, )
 
-    def clustering_mean_shift(self):
-        bandwidth = estimate_bandwidth(self.df, quantile=0.2, n_samples=500)
-        return MeanShift(bandwidth=bandwidth, bin_seeding=True).fit(self.df).labels_
+    def train_LR(self, x, y, random_state=0, verbose=0):
+        model = LogisticRegression()
+        params = {
+            'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000, 1e4]
+        }
+        k_fold = StratifiedKFold(5, shuffle=True, random_state=random_state)
+        clf = self.search_cv(model, params, k_fold, verbose=verbose)
+        clf.fit(x, y)
+        return "LR", clf
 
-    def clustering_Hierarchical_Clustering(self):
-        # 'ward', 'average', 'complete', 'single'
-        return AgglomerativeClustering(linkage='single', n_clusters=6).fit(self.df).labels_
+    def train_DT(self, x, y, random_state=0, verbose=0):
+        model = DecisionTreeClassifier()
+        params = {
+            'max_depth': [2, 3, 5, 10, 20],
+            'min_samples_leaf': [5, 10, 20, 50, 100],
+            'criterion': ["gini", "entropy"]
+        }
+        k_fold = StratifiedKFold(5, shuffle=True, random_state=random_state)
+        clf = self.search_cv(model, params, k_fold, verbose=verbose)
+        clf.fit(x, y)
+        return "DT", clf
 
-    def outlier_removal(self, x, labels, protected_labels=np.array([]), outliers_fraction=0.01, plot=False):
-        r = random.randint(1, 10000)
-        if plot:
-            print("random_state=%d" % r)
-        clf = IsolationForest(random_state=r, max_samples=0.99, bootstrap=False, n_estimators=250,
-                              contamination=outliers_fraction)
-        tmpdf = x.copy(deep=True)
-        tmpdf['result'] = clf.fit_predict(x)
-        tmpdf.loc[(tmpdf['result'] == -1) & (tmpdf[self.col_y].isin(protected_labels)), 'result'] = 1
+    def train_NB(self, x, y, random_state=0, verbose=0):
+        model = GaussianNB()
+        params = {
+            'var_smoothing': [1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15]
+        }
+        k_fold = StratifiedKFold(5, shuffle=True, random_state=random_state)
+        clf = self.search_cv(model, params, k_fold, verbose=verbose)
+        clf.fit(x, y)
+        return "NB", clf
 
-        if plot:
-            f = np.mean(clf.score_samples(x))
-            print("\nscorer_f : %.6f, rand_seed: %d" % (f, r))
+    def train_RF(self, x, y, random_state=0, verbose=0):
+        model = RandomForestClassifier()
+        params = {
+            'bootstrap': [True, False],
+            'max_depth': [2, 4, 8, 16, 32],
+            'max_features': ['auto', 'sqrt', 'log2'],
+            'min_samples_leaf': [1, 2, 4],
+            'min_samples_split': [2, 5, 10],
+            'n_estimators': [10, 20, 50, 100, 200],
+            'criterion': ['gini', 'entropy']
+        }
+        # scoring = {
+        #     "Accuracy": make_scorer(accuracy_score),
+        #     "mean_absolute_error": make_scorer(mean_absolute_error),
+        #     "mean_squared_error": make_scorer(mean_squared_error),
+        #     "r2_score": make_scorer(r2_score),
+        # }
+        k_fold = StratifiedKFold(5, shuffle=True, random_state=random_state)
+        clf = self.search_cv(model, params, k_fold, verbose=verbose)
+        clf.fit(x, y)
+        return "RF", clf
 
-            x = PCA().fit_transform(x)
-            indices_norm = tmpdf[tmpdf['result'] == 1].index
-            indices_iso = tmpdf[tmpdf['result'] == -1].index
-            x1 = np.delete(x, indices_iso, axis=0)
-            x2 = np.delete(x, indices_norm, axis=0)
-            c1 = np.delete(labels, indices_iso)
+    def train_XGB(self, x, y, random_state=0, verbose=0):
+        model = XGBClassifier(eval_metric='logloss')
+        params = {
+            "learning_rate": [0.001, 0.01, 0.1, 1],
+            "max_depth": [2,4,6,8,10],
+            "min_child_weight": range(1, 10),
+            "gamma": np.arange(0, 0.7, 0.2),
+            "colsample_bytree": np.arange(0.1, 1.1, 0.1),
+            "n_estimators": [10,20,50,100,200,500]
+        }
+        k_fold = StratifiedKFold(5, shuffle=True, random_state=random_state)
+        clf = self.search_cv(model, params, k_fold, verbose=verbose)
+        clf.fit(x, y)
+        return "XGB", clf
 
-            _, ax = plt.subplots(1, 1, figsize=(8, 8))
-            ax = plt.axes(projection='3d', elev=30, azim=60)
-            ax.scatter3D(x1[:, 0], x1[:, 1], x1[:, 2], c=c1, cmap=plt.cm.Set1, edgecolor="k", s=40, alpha=.9, )
-            ax.scatter3D(x2[:, 0], x2[:, 1], x2[:, 2], color='r', marker='x', edgecolor="k", s=40, alpha=.9, )
-            ax.set_title("Visualizations on the first three PCA directions, k=6")
-            ax.set_xlabel("1st eigenvector")
-            ax.w_xaxis.set_ticklabels([])
-            ax.set_ylabel("2nd eigenvector")
-            ax.w_yaxis.set_ticklabels([])
-            ax.set_zlabel("3rd eigenvector")
-            ax.w_zaxis.set_ticklabels([])
-            plt.show()
-        return tmpdf.drop(tmpdf[(tmpdf['result'] == -1)].index, axis=0).drop(['result'], axis=1).reset_index(drop=True)
+foo = Foo()
+foo.feature_encoding()
 
-    @staticmethod
-    def pca_plot(x, labels, figsize=(8, 8), elev=30, azim=60):
-        x = PCA().fit_transform(x)
-        _, ax = plt.subplots(1, 1, figsize=figsize)
-        ax = plt.axes(projection='3d', elev=elev, azim=azim)
-        ax.scatter3D(x[:, 0], x[:, 1], x[:, 2], c=labels, cmap=plt.cm.Set1, edgecolor="k", s=40, alpha=.9, )
-        ax.set_title("Visualizations on the first three PCA directions")
-        ax.set_xlabel("1st eigenvector")
-        ax.w_xaxis.set_ticklabels([])
-        ax.set_ylabel("2nd eigenvector")
-        ax.w_yaxis.set_ticklabels([])
-        ax.set_zlabel("3rd eigenvector")
-        ax.w_zaxis.set_ticklabels([])
-        plt.show()
 
 
 if __name__ == '__main__':
