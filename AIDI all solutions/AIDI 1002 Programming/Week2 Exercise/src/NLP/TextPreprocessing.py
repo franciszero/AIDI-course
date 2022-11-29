@@ -34,7 +34,7 @@ def p(df, i):
 # https://www.kdnuggets.com/2018/08/practitioners-guide-processing-understanding-text-2.html
 class TextPreprocessing:
     def __init__(self):
-        self.df0 = pd.read_csv('./data/netflix_titles.csv', encoding='utf8')
+        self.df0 = pd.read_csv('./../data/netflix_titles.csv', encoding='utf8')
         pass
 
     def normalize_corpus(self, size, html_stripping=True, contraction_expansion=True,
