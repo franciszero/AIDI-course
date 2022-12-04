@@ -1,0 +1,120 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "zebra match",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "HelloWorldIntent",
+                    "slots": [],
+                    "samples": [
+                        "hello",
+                        "how are you",
+                        "say hi world",
+                        "say hi",
+                        "hi",
+                        "say hello world",
+                        "say hello"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                }
+            ],
+            "types": [
+                {
+                    "name": "weight",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "light",
+                                "synonyms": [
+                                    "light",
+                                    "tiny"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "medium",
+                                "synonyms": [
+                                    "medium",
+                                    "plain",
+                                    "regular"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "heavy",
+                                "synonyms": [
+                                    "heavy",
+                                    "gigantic",
+                                    "huge",
+                                    "big"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "stripe",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "narrow",
+                                "synonyms": [
+                                    "narrow"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "wide",
+                                "synonyms": [
+                                    "wide"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "stringLiteral",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "dummy value: literal API return entity"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "name",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "dummy"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
