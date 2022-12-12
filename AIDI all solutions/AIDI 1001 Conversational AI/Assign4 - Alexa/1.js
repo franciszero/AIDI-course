@@ -84,32 +84,26 @@ const PIZZA_COSTS_BY_SIZE_ID = {
     'XL': 13.99
 };
 
-// const AddDrinkAPIHandler = {
-//     canHandle(handlerInput) {
-//         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'Dialog.API.Invoked' && handlerInput.requestEnvelope.request.apiRequest.name === 'AddDrink';
-//     },
-//     handle(handlerInput) {
-//         const apiRequest = handlerInput.requestEnvelope.request.apiRequest;
+const AddDrinkAPIHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'Dialog.API.Invoked' &&
+        handlerInput.requestEnvelope.request.apiRequest.name === 'AddDrink';
+    },
+    handle(handlerInput) {
+        const apiArguments = _.get(handlerInput, 'requestEnvelope.request.apiRequest.arguments');
 
-//         let drink = resolveEntity(apiRequest.slots, "drink");
-//         let drinksize = resolveEntity(apiRequest.slots, "drinksize");
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        sessionAttributes.drink = apiArguments.drink;
+        sessionAttributes.drinksize = apiArguments.drinksize;
 
-//         const drinkEntity = {};
-//         if (weight !== null && stripe !== null) {
-//             const key = `${stripe}-${weight}`;
-//             const databaseResponse = data[key];
-
-//             console.log("Response from mock database ", databaseResponse);
-
-//             drinkEntity.name = databaseResponse.breed;
-//             drinkEntity.stripe = stripe
-//             drinkEntity.weight = weight;
-//         }
-
-//         const response = buildSuccessApiResponse(drinkEntity);
-//         return response;
-//     }
-// };
+        return handlerInput.responseBuilder.withApiResponse({
+            drink: apiArguments.drink,
+            drinksize: apiArguments.drinksize
+        })
+        .withShouldEndSession(false)
+        .getResponse();
+    }
+};
 
 // *****************************************************************************
 // Launch request handler
@@ -608,6 +602,8 @@ module.exports.handler = Alexa.SkillBuilders.standard()
         CancelAndStopIntentHandler,
         HelpIntentHandler,
         FallbackIntentHandler,
+
+        AddDrinkAPIHandler,
 
         AddCustomPizzaApiHandler,
         GetSpecialtyPizzaDetailsApiHandler,

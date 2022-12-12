@@ -1,0 +1,249 @@
+{
+	"version": "1.0",
+	"session": {
+		"new": false,
+		"sessionId": "amzn1.echo-api.session.6a0d9fb9-76b8-4a8e-ba2a-f8501d0e655b",
+		"application": {
+			"applicationId": "amzn1.ask.skill.6fce58f5-eaf7-4796-9a07-68ff3594ce38"
+		},
+		"attributes": {
+			"inProgress": {
+				"pizzas": [
+					{
+						"size": "large",
+						"cheese": "light",
+						"crust": "traditional",
+						"toppings": [
+							"sausage",
+							"pepperoni",
+							"ham",
+							"bacon"
+						],
+						"cost": 9.99,
+						"nullableSpecialtyPizzaName": "Meat Lover's"
+					}
+				]
+			},
+			"givenName": "Francis"
+		},
+		"user": {
+			"userId": "amzn1.ask.account.AF727XT5TME7V5W62KEQUREOTGJTACL2HQA3TMJBMDFPRUKK2JIGWDYBEDGAIXQ7VHQI5KQU5L2XADOHX27YSHN5QKQMAK4APQRKDFBRR6XJW7KQ5AJN2AJET2SXZLFKDGEY7UE4RQW2FMGPFJUVFTD7TNVDA3E6MTXWIQLENBJCK3GNQOCWK57RFHYEQIUQRLEFF4GLE5Q7NSY"
+		}
+	},
+	"context": {
+		"Viewports": [
+			{
+				"type": "APL",
+				"id": "main",
+				"shape": "RECTANGLE",
+				"dpi": 213,
+				"presentationType": "STANDARD",
+				"canRotate": false,
+				"configuration": {
+					"current": {
+						"mode": "HUB",
+						"video": {
+							"codecs": [
+								"H_264_42",
+								"H_264_41"
+							]
+						},
+						"size": {
+							"type": "DISCRETE",
+							"pixelWidth": 1280,
+							"pixelHeight": 800
+						}
+					}
+				}
+			}
+		],
+		"Viewport": {
+			"experiences": [
+				{
+					"arcMinuteWidth": 346,
+					"arcMinuteHeight": 216,
+					"canRotate": false,
+					"canResize": false
+				}
+			],
+			"mode": "HUB",
+			"shape": "RECTANGLE",
+			"pixelWidth": 1280,
+			"pixelHeight": 800,
+			"dpi": 213,
+			"currentPixelWidth": 1280,
+			"currentPixelHeight": 800,
+			"touch": [
+				"SINGLE"
+			],
+			"video": {
+				"codecs": [
+					"H_264_42",
+					"H_264_41"
+				]
+			}
+		},
+		"Extensions": {
+			"available": {
+				"aplext:backstack:10": {}
+			}
+		},
+		"System": {
+			"application": {
+				"applicationId": "amzn1.ask.skill.6fce58f5-eaf7-4796-9a07-68ff3594ce38"
+			},
+			"user": {
+				"userId": "amzn1.ask.account.AF727XT5TME7V5W62KEQUREOTGJTACL2HQA3TMJBMDFPRUKK2JIGWDYBEDGAIXQ7VHQI5KQU5L2XADOHX27YSHN5QKQMAK4APQRKDFBRR6XJW7KQ5AJN2AJET2SXZLFKDGEY7UE4RQW2FMGPFJUVFTD7TNVDA3E6MTXWIQLENBJCK3GNQOCWK57RFHYEQIUQRLEFF4GLE5Q7NSY"
+			},
+			"device": {
+				"deviceId": "amzn1.ask.device.AFOI5TIRL6CP5C336EMNKEGDXT3VVYPEGDQCQVQOAGUEZWNKXPMU32HMRKYWSY5UC3HU2TIV4B3CO5LZHCABCPFXAJ5UNERDN4RP42LVVDGN646ZQDBERHZHEB4NHPCXXWTUO2BDKOGO72Q7O45ARPHYSG26ZSZZBKNYWAFLYTNCYYONNOQAE",
+				"supportedInterfaces": {
+					"Alexa.Presentation.APL": {
+						"runtime": {
+							"maxVersion": "2022.2"
+						}
+					}
+				}
+			},
+			"apiEndpoint": "https://api.amazonalexa.com",
+			"apiAccessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjEifQ.eyJhdWQiOiJodHRwczovL2FwaS5hbWF6b25hbGV4YS5jb20iLCJpc3MiOiJBbGV4YVNraWxsS2l0Iiwic3ViIjoiYW16bjEuYXNrLnNraWxsLjZmY2U1OGY1LWVhZjctNDc5Ni05YTA3LTY4ZmYzNTk0Y2UzOCIsImV4cCI6MTY3MDc5NzgzOSwiaWF0IjoxNjcwNzk3NTM5LCJuYmYiOjE2NzA3OTc1MzksInByaXZhdGVDbGFpbXMiOnsiY29udGV4dCI6IkFBQUFBQUFBQUFEc2hqaWpleTBsYVNnMVlURGo3RHBvS3dFQUFBQUFBQUFIdS82K01jM2I5b0dhLzM4VmFGN0RyVVgwaXZ1UEovaVFhQVBEL1daYnIzUnNBdjhyenovTU4vU0NjMTNVck40OWt2MWhqcUxocUFBdSt5akwyZ0l1dGFZWkJONTBtMGhlRmRXbHpad2U5UTZLVVZ6S2xOTjdqdGpmM2dES2toRitYWGR5NlJlMk1QbXFtaHBDeEJrVkdsbGM0K1pPK3FmNU04SEIzTmJqRzZPSllrUktaOGxlanZWTDFxcnZtMGdacCtEUUpIak9RNDBneklPQVUwZmp5UGc1TEppVTNCS3BjSXpVZ0lYVjdYRDF5TlNDMjVaQTEwTWllejRaUlNTRGR6aWhjcjdRL2NqYUpxMWxGYXRBdC9NQzEvR2NaZS9PVWZVRnJROVQ2K0JQSFBFclVZRTllVm1KTnVVaExBZFI0Rzd2bmVVV0RET082ZU5qYThuNU9KWFErMzU0a0lMOVVSaXljVFJ1VTNNZ2JyeFpNV0pJZjB6TUFQNi9HVHhDVnloM3hQSm9SWDVveGc9PSIsImRldmljZUlkIjoiYW16bjEuYXNrLmRldmljZS5BRk9JNVRJUkw2Q1A1QzMzNkVNTktFR0RYVDNWVllQRUdEUUNRVlFPQUdVRVpXTktYUE1VMzJITVJLWVdTWTVVQzNIVTJUSVY0QjNDTzVMWkhDQUJDUEZYQUo1VU5FUkRONFJQNDJMVlZER042NDZaUURCRVJIWkhFQjROSFBDWFhXVFVPMkJES09HTzcyUTdPNDVBUlBIWVNHMjZaU1paQktOWVdBRkxZVE5DWVlPTk5PUUFFIiwidXNlcklkIjoiYW16bjEuYXNrLmFjY291bnQuQUY3MjdYVDVUTUU3VjVXNjJLRVFVUkVPVEdKVEFDTDJIUUEzVE1KQk1ERlBSVUtLMkpJR1dEWUJFREdBSVhRN1ZIUUk1S1FVNUwyWEFET0hYMjdZU0hONVFLUU1BSzRBUFFSS0RGQlJSNlhKVzdLUTVBSk4yQUpFVDJTWFpMRktER0VZN1VFNFJRVzJGTUdQRkpVVkZURDdUTlZEQTNFNk1UWFdJUUxFTkJKQ0szR05RT0NXSzU3UkZIWUVRSVVRUkxFRkY0R0xFNVE3TlNZIn19.PigL_siRF7HZN78FGvcaTDjA5Zjwt1UdbyYx8F28JuDKIu8kS_EqYTjCtl01snZ7ZWAdPLHzw6vakUK41eLBvmbY-5GxRf6IaGokb7xyiLiDSHJIF1tQkuX6cJ4lN_6MneF93fCMyJieTFpbIUGAKG7ihl3tPkcXEBBPdPkq9H06VYTEcutAJmmJl73D8tokEfX67LHJp8n4M25vD-44DR4vmyR9W5pwyJGhBdM1qD6hKqe-cBrXU2zvYVDob2Gd6-2uBfYbYMMg21xsJg0jOimiXiT_BgmUtAC7qT7yNhbia8WvBbbsMWqyonEhTtSFh6Ko_9T66-0ism0FzNn3ug"
+		},
+		"Alexa.Presentation.APL": {
+			"token": "",
+			"version": "APL_WEB_RENDERER_GANDALF",
+			"componentsVisibleOnScreen": [
+				{
+					"uid": ":1000",
+					"position": "960x600+0+0:0",
+					"type": "mixed",
+					"tags": {
+						"viewport": {}
+					},
+					"children": [
+						{
+							"uid": ":1001",
+							"position": "960x600+0+0:0",
+							"type": "graphic",
+							"tags": {},
+							"entities": []
+						},
+						{
+							"uid": ":1006",
+							"position": "960x57+0+0:2",
+							"type": "empty",
+							"tags": {},
+							"entities": []
+						},
+						{
+							"uid": ":1013",
+							"position": "960x102+0+497:2",
+							"type": "text",
+							"tags": {},
+							"entities": []
+						}
+					],
+					"entities": []
+				}
+			]
+		}
+	},
+	"request": {
+		"type": "IntentRequest",
+		"requestId": "amzn1.echo-api.request.ab4758f4-5c81-4f9b-8335-b0757032d17e",
+		"locale": "en-US",
+		"timestamp": "2022-12-11T22:25:39Z",
+		"intent": {
+			"name": "UtteranceTrainingIntent",
+			"confirmationStatus": "NONE",
+			"slots": {
+				"toppingThree": {
+					"name": "toppingThree",
+					"confirmationStatus": "NONE"
+				},
+				"toppingOne": {
+					"name": "toppingOne",
+					"confirmationStatus": "NONE"
+				},
+				"size": {
+					"name": "size",
+					"value": "large",
+					"resolutions": {
+						"resolutionsPerAuthority": [
+							{
+								"authority": "amzn1.er-authority.echo-sdk.amzn1.ask.skill.6fce58f5-eaf7-4796-9a07-68ff3594ce38.Size",
+								"status": {
+									"code": "ER_SUCCESS_MATCH"
+								},
+								"values": [
+									{
+										"value": {
+											"name": "large",
+											"id": "L"
+										}
+									},
+									{
+										"value": {
+											"name": "extra large",
+											"id": "XL"
+										}
+									}
+								]
+							}
+						]
+					},
+					"confirmationStatus": "NONE",
+					"source": "USER",
+					"slotValue": {
+						"type": "Simple",
+						"value": "large",
+						"resolutions": {
+							"resolutionsPerAuthority": [
+								{
+									"authority": "amzn1.er-authority.echo-sdk.amzn1.ask.skill.6fce58f5-eaf7-4796-9a07-68ff3594ce38.Size",
+									"status": {
+										"code": "ER_SUCCESS_MATCH"
+									},
+									"values": [
+										{
+											"value": {
+												"name": "large",
+												"id": "L"
+											}
+										},
+										{
+											"value": {
+												"name": "extra large",
+												"id": "XL"
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				},
+				"toppingTwo": {
+					"name": "toppingTwo",
+					"confirmationStatus": "NONE"
+				},
+				"specialtyPizzaName": {
+					"name": "specialtyPizzaName",
+					"confirmationStatus": "NONE"
+				},
+				"ordinal": {
+					"name": "ordinal",
+					"confirmationStatus": "NONE"
+				},
+				"cheese": {
+					"name": "cheese",
+					"confirmationStatus": "NONE"
+				},
+				"crust": {
+					"name": "crust",
+					"confirmationStatus": "NONE"
+				}
+			}
+		},
+		"dialogState": "STARTED"
+	}
+}
