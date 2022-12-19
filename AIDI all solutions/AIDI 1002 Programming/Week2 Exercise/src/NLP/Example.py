@@ -7,6 +7,12 @@ import numpy as np
 import re
 import codecs
 
+txt = "2 times 3 is 6"
+x = re.findall("[j-q0-9]+", txt)
+i = None
+
+
+
 input_file = codecs.open("socialmedia_relevant_cols.csv", "r", encoding='utf-8', errors='replace')
 output_file = open("socialmedia_relevant_cols_clean.csv", "w")
 
