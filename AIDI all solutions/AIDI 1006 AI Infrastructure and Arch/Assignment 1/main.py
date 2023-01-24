@@ -3,53 +3,90 @@ import numpy as np
 from PIL import Image
 import os
 
-file = "/Users/francis/Downloads/cifar-10-batches-py/data_batch_1"
+# The CIFAR-10 Dataset
+# https://www.cs.toronto.edu/~kriz/cifar.html
 
+root = "/Users/francis/Documents/Georgian College/AIDI/AIDI all solutions/AIDI 1006 AI Infrastructure and Arch/Assignment 1/"
+workspace = root + "cifar-10-batches-py"
+train_file = "data_batch"
+test_file = "test_batch"
 
-def unpickle(file):
-    with open(file, 'rb') as fo:
-        dict = pickle.load(fo, encoding='bytes')
-    return dict
-
-
-d = unpickle(file)
-# dict_keys([b'batch_label', b'labels', b'data', b'filenames'])
-
-
-for p in ["train", "validation", "test"]:
-    path = "./%s" % (p)
+for p in ["train", "test"]:
+    path = workspace + "/%s" % p
     isExists = os.path.exists(path)
     if not isExists:
         os.makedirs(path)
 
-for p in ["train", "validation", "test"]:
-    for i in range(10):
-        path = "./%s/%d" % (p, i)
+for p in ["train", "test"]:
+    for k in range(10):
+        path = workspace + "/%s/%d" % (p, k)
         isExists = os.path.exists(path)
         if not isExists:
             os.makedirs(path)
 
-np.random.seed(0)
-p = np.array([0.6, 0.2, 0.2])
-# index = np.random.choice(["train", "validation", "test"], p=p.ravel())
 
-for idx in range(10000):
-    label = d['labels'.encode('utf-8')][idx]
-    data = d['data'.encode('utf-8')][idx]
-    filename = d['filenames'.encode('utf-8')][idx]
+def unpickle(f):
+    with open(f, 'rb') as fo:
+        dd = pickle.load(fo, encoding='bytes')
+    return dd
+
+
+# train
+cnt = 0
+np.random.seed(0)
+for i in range(1, 6):
+    file = "%s/%s_%d" % (workspace, train_file, i)
+    d = unpickle(file)
+    ll = len(d['labels'.encode('utf-8')])
+    for j in range(ll):
+        label = d['labels'.encode('utf-8')][j]
+        data = d['data'.encode('utf-8')][j]
+        filename = d['filenames'.encode('utf-8')][j]
+
+        data_RGB = np.reshape(data, (3, 32, 32))
+        img = None
+        for k in range(32):
+            r = data_RGB[0][k]
+            g = data_RGB[1][k]
+            b = data_RGB[2][k]
+            line = np.vstack((r, g, b)).T.reshape(1, 32, 3)
+            if img is None:
+                img = line
+            else:
+                img = np.vstack((img, line))
+        pImg = Image.fromarray(img, mode='RGB')
+        out_path = "%s/%s/%d/%s" % (workspace, "train", label, filename.decode('utf-8'))
+        pImg.save(out_path)
+        cnt += 1
+        if cnt % 100 == 0:
+            print(cnt)
+
+# test
+cnt = 0
+file = "%s/%s" % (workspace, test_file)
+d = unpickle(file)
+ll = len(d['labels'.encode('utf-8')])
+for j in range(ll):
+    label = d['labels'.encode('utf-8')][j]
+    data = d['data'.encode('utf-8')][j]
+    filename = d['filenames'.encode('utf-8')][j]
 
     data_RGB = np.reshape(data, (3, 32, 32))
     img = None
-    for i in range(32):
-        r = data_RGB[0][i]
-        g = data_RGB[1][i]
-        b = data_RGB[2][i]
+    for k in range(32):
+        r = data_RGB[0][k]
+        g = data_RGB[1][k]
+        b = data_RGB[2][k]
         line = np.vstack((r, g, b)).T.reshape(1, 32, 3)
         if img is None:
             img = line
         else:
             img = np.vstack((img, line))
     pImg = Image.fromarray(img, mode='RGB')
-    pImg.save("./%s/%d/%s" % (np.random.choice(["train", "validation", "test"], p=p.ravel()), label, filename.decode('utf-8')))
+    out_path = "%s/%s/%d/%s" % (workspace, "test", label, filename.decode('utf-8'))
+    pImg.save(out_path)
+    cnt += 1
+    if cnt % 100 == 0:
+        print(cnt)
 
-i = None
+k = None
