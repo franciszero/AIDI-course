@@ -1,0 +1,499 @@
+Received: from MWHPR0501MB3867.namprd05.prod.outlook.com
+ (2603:10b6:301:7e::16) by BYAPR05MB4757.namprd05.prod.outlook.com with HTTPS;
+ Thu, 1 Dec 2022 13:41:37 +0000
+ARC-Seal: i=2; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=pass;
+ b=QEeZ7h/es3wcHCggxCD/IjNAJVJsuyVjYgHjdY6/R7qy3nF8vj0WIiT15bmwAEJJGXGGRrCYsP7NVeUtdqWRUNJK0E7vJFvmzNF+DVnn+5X0MWvc9qaHZHZt+l8HcCfa9cKBWzh4BFiFUFT/z1vsQY6O7I7ObLYOS1VaYgz5hKqYFG88LMEmcJAUj2QPTZWmLNQy9LPSPROvXxJ6MMOBSElAruu+D1IduDmZlThfClyQeF69YILKCWKqCalWA/sg40ZOUK5aUhskJlwRO/usMbKyFv7SgIxLSkKxE4MxPzsLlEUQIphWkqOO+dq5j/9xJSbwyghybml9XtGVtnI96g==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=eWn5D2sOhhG4o9chw3HB5TEBakkcP6GH/ejqdJGwh/Y=;
+ b=X50daMSGHOisajQh0Nv7dT3IYB29IXIIS5puNqUsU5LBiAiHmGTlomKuTDeiSsexnQS6OoE2Dy33gelFFdAKwoteEPda5uM6P1R5YytBUe+WhMdpZqQh7K7/XkwPZWdEBwwD8Gyzh37YBPSB7eUm8+9+YK2AlSmhmjCqrWSW3TaN7yRv6vxx7lV6ls/sDojkJi+CHS7tOhqbOndsu83ZbD/QtN/PDCif3w1RIY+FhXvftoARd7hcElPUlOiNmSbU/43F731eKmxLO1P0KzcqFYZqGd0JFkqf4dlKvvBCGr9LqKKwEDCS1u4kfzQVDXr9rUwtJs3MCNhR/DV6NF/jog==
+ARC-Authentication-Results: i=2; mx.microsoft.com 1; spf=pass (sender ip is
+ 40.107.116.40) smtp.rcpttodomain=mygeorgian.ca smtp.mailfrom=uwindsor.ca;
+ dmarc=bestguesspass action=none header.from=uwindsor.ca; dkim=pass (signature
+ was verified) header.d=uwin365.onmicrosoft.com; arc=pass (0 oda=1 ltdi=1
+ spf=[1,1,smtp.mailfrom=uwindsor.ca] dkim=[1,1,header.d=uwindsor.ca]
+ dmarc=[1,1,header.from=uwindsor.ca])
+Received: from CH2PR05CA0026.namprd05.prod.outlook.com (2603:10b6:610::39) by
+ MWHPR0501MB3867.namprd05.prod.outlook.com (2603:10b6:301:7e::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5857.23; Thu, 1 Dec
+ 2022 13:41:34 +0000
+Received: from YT3CAN01FT003.eop-CAN01.prod.protection.outlook.com
+ (2603:10b6:610:0:cafe::6e) by CH2PR05CA0026.outlook.office365.com
+ (2603:10b6:610::39) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.8 via Frontend
+ Transport; Thu, 1 Dec 2022 13:41:33 +0000
+Authentication-Results: spf=pass (sender IP is 40.107.116.40)
+ smtp.mailfrom=uwindsor.ca; dkim=pass (signature was verified)
+ header.d=uwin365.onmicrosoft.com;dmarc=bestguesspass action=none
+ header.from=uwindsor.ca;compauth=pass reason=109
+Received-SPF: Pass (protection.outlook.com: domain of uwindsor.ca designates
+ 40.107.116.40 as permitted sender) receiver=protection.outlook.com;
+ client-ip=40.107.116.40; helo=CAN01-YQB-obe.outbound.protection.outlook.com;
+ pr=C
+Received: from CAN01-YQB-obe.outbound.protection.outlook.com (40.107.116.40)
+ by YT3CAN01FT003.mail.protection.outlook.com (10.118.140.130) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5880.8 via Frontend Transport; Thu, 1 Dec 2022 13:41:33 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=AWOD7xUHS1RRFOFcOR/9gum+GGXvyhEwekUQvarXRRqDhuUZpA7a8QgMvJKUtDhzxX2hwFI1X6rVqKe6ouJnaLjDScPWwUzs1D6ucLGu3STDLvRKHWsXUnoVXMq0/IZpCrw5sVISh1XkD7sNJQBIs0R/YRue+fInIbc9877AfuWThtXc2JGEEDeK3bKcLUH6OoD7x4I7lD/tIzma0UTwXA3ATM8e2ocPV8nmmWujIT9DteIbEqyiS6INhC6OwoOzVkLEF9ed7XhxxUwDce9UkEZaMzmyPL8VPkx67VD0NmYqneyz4WysHmhoM/7egEP0E/BteQ2zueXLkKy272OXtw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=eWn5D2sOhhG4o9chw3HB5TEBakkcP6GH/ejqdJGwh/Y=;
+ b=eb+rDkElZ4+Tb4yHLMNFrQX8lSdvnCyjiR9jBcTaLGanvnc6Zq8Poif8a07ai3t5JUR0JGCxlWLT3s+pxYhhc/S/rT8Ipn1hHBv6KTge/HW+cyZKaIrSvNSZsV0+dIZCLMuSLE3kdNmD1lhteroNK5ECFNeei7YZ8JYnbVIhFqjr1vRnrwcN8j0dtejF+EJsxI1aCL8uD9ZCyqG8gbRJPT9I8d7Eh6wNzS29YLA/J2wMPTCP5QvxdJasR54ArW5IUmaqHfXt//3yr3kD6zQOr6ofjlK+1T5qFHB2tluOuv6qYZ/jxjVk2C/aPN4nFnIOYwKsLoLeHKqoLx8qM/FK3Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=uwindsor.ca; dmarc=pass action=none header.from=uwindsor.ca;
+ dkim=pass header.d=uwindsor.ca; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=uwin365.onmicrosoft.com; s=selector2-uwin365-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eWn5D2sOhhG4o9chw3HB5TEBakkcP6GH/ejqdJGwh/Y=;
+ b=sZxiWZvE6qPJkPk+kIlcX08ROcs/KjdCaLCWqbDrPRJ7bMknFhTjwSDUBUrAGeiS4nKGcNz4lHovO0gWUs9MFF2pEREtVnjeWfaHv8Z6Mlr/pI917/+hzFULd5BV4k3gG2NipP73/wbo10mHEgVa0g7PYjtK/kowTnOcD+L+13U=
+Received: from YT2PR01MB4861.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:44::11)
+ by YT1PR01MB8361.CANPRD01.PROD.OUTLOOK.COM (2603:10b6:b01:c0::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5880.8; Thu, 1 Dec
+ 2022 13:41:31 +0000
+Received: from YT2PR01MB4861.CANPRD01.PROD.OUTLOOK.COM
+ ([fe80::7311:4f55:b7ad:9014]) by YT2PR01MB4861.CANPRD01.PROD.OUTLOOK.COM
+ ([fe80::7311:4f55:b7ad:9014%8]) with mapi id 15.20.5857.023; Thu, 1 Dec 2022
+ 13:41:31 +0000
+From: Chris Houser <Chris.Houser@uwindsor.ca>
+To: Cassandra Forlani <Cassandra.Forlani@MyGeorgian.ca>, Becky Smith
+	<becky.smith@nii.ca>, Alex Smith <absmith9@uwindsor.ca>
+CC: Yi-Chen Hsiao <Yi-Chen.Hsiao@MyGeorgian.ca>, Ruwindhu Dilanga Chandraratne
+ Hettige Don <RuwindhuDilangaChandraratne.HettigeDon@MyGeorgian.ca>, Brunilda
+ Xhaferllari <Brunilda.Xhaferllari@GeorgianCollege.ca>, Richard Rinaldo
+	<Richard.Rinaldo@GeorgianCollege.ca>, Diksha Mongia
+	<Diksha.Mongia@GeorgianCollege.ca>, Dave Shorey
+	<Dave.Shorey@GeorgianCollege.ca>
+Subject: Re: Smart Beach Project Introduction meeting - MIC and Georgian
+ College 
+Thread-Topic: Smart Beach Project Introduction meeting - MIC and Georgian
+ College 
+Thread-Index: AQHZBQlTI+tBiNcStUSrHbpYZdvUVq5ZBhn7
+Date: Thu, 1 Dec 2022 13:41:31 +0000
+Message-ID:
+ <YT2PR01MB486154C44BCEEE9B45DC137082149@YT2PR01MB4861.CANPRD01.PROD.OUTLOOK.COM>
+References:
+ <BYAPR05MB475730AF713D90A8B4FBBD58F9159@BYAPR05MB4757.namprd05.prod.outlook.com>
+In-Reply-To:
+ <BYAPR05MB475730AF713D90A8B4FBBD58F9159@BYAPR05MB4757.namprd05.prod.outlook.com>
+Accept-Language: en-CA, en-US
+Content-Language: en-CA
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Authentication-Results-Original: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=uwindsor.ca;
+x-ms-traffictypediagnostic:
+ YT2PR01MB4861:EE_|YT1PR01MB8361:EE_|YT3CAN01FT003:EE_|MWHPR0501MB3867:EE_
+X-MS-Office365-Filtering-Correlation-Id: c9401d13-b35e-427d-59dd-08dad3a1c2a6
+X-MS-Exchange-AtpMessageProperties: SA|SL
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+X-Microsoft-Antispam-Untrusted: BCL:0;
+X-Microsoft-Antispam-Message-Info-Original:
+ 2YeiXgCbGTuWSrOTR/nKv/Fp0cRaGlcaKQGT7pJKX+oiUn/uwnvHpCgd4JA5LaXXqmNFDQTcO228NAGG9KFSDu6is6RNvP0wUgS+OUywgsIQSJIuGMH4qEbDKxiP0hr2aikuJRxcKfUgrf1gOHrXt9RUKbdqbMrYCrrW0mXkElQ3/GbqdrcYGH0ylLPbUm4RLo8t8lAACn4QHVyvQqppJzDPg63J5/3FuIM6LPhFAqVBwfrtClL/ReL84VpURwtxhGUOP88mMSM7eTrQ+OhioR87MO6uPUR2Dnsxud7C++0D5FUsbRrK3WKQO9CkVj0ykQcYfDs30xn/5GAZwI+7ZEKKFODImfh55neugbnuAj6F0jrTwjHJG+FOyzNHOUQpldd4de4Bj947q7s7HvAtJut2fS28RQNv2+2cVeo27vjlKW+nJqgCJUPz1/BFr23/7NDSmxS1Tta3m9myHKYI9iefxG1eHVJ6XLpdHwLhd5bvuULIoahw/HzhlO22ZZ5lWHH9hFKyeXtgSd9ul77Gg7wkyR/xV81ibe3+Y7EjCMEKtOGKATYCvSapEIJW7ya8REud4uW+0z3cHpRDzGQFMCOJILjGalOtSN1gksVed7t2TjOsOoE+d6Gej155z9uIcYjhfBAHhe+BKagj5SjizOlvXSai2OOqxGjGWnBJXg4w4fNADDLSBkkLUv79ow5AqCHc+jNWJ8bBEBkvbeO4Dmkq7rB9qXT/fo71goCdvvk=
+X-Forefront-Antispam-Report-Untrusted:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:YT2PR01MB4861.CANPRD01.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230022)(4636009)(376002)(39860400002)(346002)(396003)(366004)(136003)(84040400005)(1690799008)(451199015)(19627405001)(110136005)(53546011)(478600001)(9686003)(71200400001)(6506007)(7696005)(33656002)(166002)(38070700005)(41320700001)(86362001)(55016003)(4743002)(38100700002)(186003)(83380400001)(122000001)(5660300002)(52536014)(41300700001)(26005)(66946007)(76116006)(8936002)(64756008)(66476007)(8676002)(66556008)(66446008)(4326008)(316002)(2906002)(54906003)(6636002)(786003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-Original-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-Original-0:
+ =?us-ascii?Q?tmsiicqgeJghuR3ryCleB8dGc84fIfwIBRsLzS3b4udjKJTXpuDTNTaJRags?=
+ =?us-ascii?Q?rwjpjcz/TAmXtblR1icKpoChBB3WG+PLhqZEnKkDKGW/+4NI52zax19b8NzG?=
+ =?us-ascii?Q?CF6HVwcIEki2lVjR8BRU+i6b9tP4C2y3UT6T4RK5hnW0Khs8Ras3n9h0HIZ2?=
+ =?us-ascii?Q?io+C0lDoUWWW/pakZmjrQ8ScVPT/vs9r7sWmQSNVI3jz5wYSfPhFKiZ3Azob?=
+ =?us-ascii?Q?iJty47uKP3AlCZC1hChGvXYuMKc7P7Vpdv5nj00dnnU4Ej4n3Yrxk4xtdR4o?=
+ =?us-ascii?Q?s/19o5yKzwz1RLXNFvbHhimb3ARr2SyyNg5QOrG1L/DHGu0s1zLc1EWcqREZ?=
+ =?us-ascii?Q?tlhg7H6hMyiOSfMZjPCDfA1mXU5aSen7OIJ5rQvhqvfMwHcJ6Q65qtQzic9H?=
+ =?us-ascii?Q?GR2MG1XPEaCULmnUKMOof66k/QfM5PA0fKHE9wQHyykG1Hto+HGc6IZV7b6L?=
+ =?us-ascii?Q?aJN9EDLqmwksVqQQ/umSO66moB7ZLqj4uAITUQAhi1vV8jCyxXNvD0nUNjOE?=
+ =?us-ascii?Q?CIir/fQoF38LpiwsPdEPxU8vRHxmYlTN+fbClDErswBs85vm7tHMU5ac4XsJ?=
+ =?us-ascii?Q?ELjgfHbeV9j/36SrLoV8gyigz09tHYbKtHci+6UNi2F3/uY3p5LPwD4NqHx0?=
+ =?us-ascii?Q?rN6uyXkTYPoVOY7ORywtTwzA/q55qKt3uuzxbSO7v2bxLdX9jtnntbo8tujc?=
+ =?us-ascii?Q?oF2IzepcFVzjxLGIo/EAvoQzml96N/0qdwrb4yZ16QM9vNCVVuTt9D+0PNZE?=
+ =?us-ascii?Q?bWbwtsW+m5vErXo46DiUJtcu4c4Z8N5ARHPssN2W+3NVWvKFa/WPLTs5AKBA?=
+ =?us-ascii?Q?QD2ylaoWTqYwJqFCnNnfKg11lyl11FubNZ7twQIH2Qo5V5p5vP955dy7JwEi?=
+ =?us-ascii?Q?MpHahzAFvzHICWfUfUG4EMWFnC+peAeG/bjb0FfQnoNXnuh2yFyeKPb1h5X6?=
+ =?us-ascii?Q?x3fu+GcIgc6fKnp+36DlYWc2f83rbET6d0VLZsCo6e12fKcHZnKx8xU9ebYg?=
+ =?us-ascii?Q?OwXfjyAwmK90LNUOH/rW/cx5zt0FaSjwMoON46myRJrH/syxJBue1hZflSBe?=
+ =?us-ascii?Q?kWsV3jAKDFrSyk6kvq6gyutpVnEnw0Kf8WRR8OEXn6GSsl++wS/zdNJ0YEO4?=
+ =?us-ascii?Q?VSNgA0eNzlJpgiHWmWL68AeOxyIwQ4EqAhSVSZr5s/6lkVgX6+VEHI6Nfy1k?=
+ =?us-ascii?Q?IQFB5zT/DWtjvBF2cCgdomPnMtSua681jy7WlIz868QARWmjW744y9vPBfRb?=
+ =?us-ascii?Q?mwHKXfvJa4Ft2fuyVCu+MnbwLTw8tea4+PSJwJJrbi/EVLq+2X63yPOS9FF/?=
+ =?us-ascii?Q?t6MnKS3ms27VWyTEDhxp9R+P7r5ZcmbeoO5ikc0rQakQsOb7awsitbOjp0Xz?=
+ =?us-ascii?Q?2/uHh1GY1wvyyN8yUnYiKYTDiYBXnvmndAinfWgS6CwKSrKtiYNiTofL1Dbp?=
+ =?us-ascii?Q?KptSq7TUS4O2VIqW2SLh+xTkIuw37dyctoUtnzeeES0qMBLK0pqpsqk+QKRP?=
+ =?us-ascii?Q?tcqydhTbgpsXGx4j8jeYgnYino7ilaPqKhRfjne/zDixM43/RXX3Z1o4kb3C?=
+ =?us-ascii?Q?KPw5/ZMTO08E5/+cYx6K68d9CU53xFsV6x4NWuhMM6e7lCdlTXSjlJZBW994?=
+ =?us-ascii?Q?VA=3D=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_YT2PR01MB486154C44BCEEE9B45DC137082149YT2PR01MB4861CANP_"
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: YT1PR01MB8361
+Return-Path: Chris.Houser@uwindsor.ca
+X-MS-Exchange-Organization-ExpirationStartTime: 01 Dec 2022 13:41:33.5223
+ (UTC)
+X-MS-Exchange-Organization-ExpirationStartTimeReason: OriginalSubmit
+X-MS-Exchange-Organization-ExpirationInterval: 1:00:00:00.0000000
+X-MS-Exchange-Organization-ExpirationIntervalReason: OriginalSubmit
+X-MS-Exchange-Organization-Network-Message-Id:
+ c9401d13-b35e-427d-59dd-08dad3a1c2a6
+X-EOPAttributedMessage: 0
+X-EOPTenantAttributedMessage: da9a94b6-4681-49bc-bd7c-bab9eac0ad3c:0
+X-MS-Exchange-Organization-MessageDirectionality: Incoming
+X-MS-Exchange-Transport-CrossTenantHeadersStripped:
+ YT3CAN01FT003.eop-CAN01.prod.protection.outlook.com
+X-MS-Exchange-Transport-CrossTenantHeadersPromoted:
+ YT3CAN01FT003.eop-CAN01.prod.protection.outlook.com
+X-MS-PublicTrafficType: Email
+X-MS-Exchange-Organization-AuthSource:
+ YT3CAN01FT003.eop-CAN01.prod.protection.outlook.com
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-MS-Office365-Filtering-Correlation-Id-Prvs:
+ d7b7473a-906a-42ba-1ce3-08dad3a1c17b
+X-MS-Exchange-Organization-SCL: 1
+X-Microsoft-Antispam: BCL:5;
+X-Forefront-Antispam-Report:
+ CIP:40.107.116.40;CTRY:CA;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CAN01-YQB-obe.outbound.protection.outlook.com;PTR:mail-yqbcan01on2040.outbound.protection.outlook.com;CAT:NONE;SFS:(13230022)(4636009)(286005)(84040400005)(451199015)(1690799008)(4326008)(8676002)(33656002)(356005)(6636002)(54906003)(110136005)(26005)(83290400002)(83320400002)(83380400001)(45080400002)(166002)(83310400002)(55016003)(7636003)(107886003)(8636004)(6506007)(83300400002)(4743002)(53546011)(86362001)(9686003)(83280400002)(336012)(7696005)(52536014)(4006050)(19627405001)(1096003)(75640400001)(557244007);DIR:INB;
+X-MS-Exchange-ABP-GUID: 0ab719d7-adef-42ef-93bc-0a4c8429062f
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Dec 2022 13:41:33.4442
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: c9401d13-b35e-427d-59dd-08dad3a1c2a6
+X-MS-Exchange-CrossTenant-Id: da9a94b6-4681-49bc-bd7c-bab9eac0ad3c
+X-MS-Exchange-CrossTenant-AuthSource: YT3CAN01FT003.eop-CAN01.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR0501MB3867
+X-MS-Exchange-Transport-EndToEndLatency: 00:00:04.5526796
+X-MS-Exchange-Processed-By-BccFoldering: 15.20.5857.022
+X-Microsoft-Antispam-Mailbox-Delivery:
+	ucf:0;jmr:0;auth:0;dest:I;ENG:(910001)(944506478)(944626604)(920097)(930097);
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?RFCpXeseUyiDy+uwEOOCnCrf/HmDiYvKF78amBBiCdK9+iv36nlMghS7IxdQ?=
+ =?us-ascii?Q?DjROPRD+euux9ZM5db7k7UfUQacbXlgyjtFjUY+VyvxPxRAQWEVf9I5tT9OQ?=
+ =?us-ascii?Q?QaDGDuUlJaT4iwE3KKzJa83DIPeVtEfSlplBimRHdlpqrfDvXRfRudByA3CG?=
+ =?us-ascii?Q?BpztXR5hO4IaNj2bxYFrmmDLWkrbazPG/G1NmMDSFlgFeYJVr1eiiOmeZnkg?=
+ =?us-ascii?Q?Yn7jdI+TcB7pfXH6w/YlWk42NRclYz5aengNBJW5EOklIAIPqCY8CUm86aic?=
+ =?us-ascii?Q?dKnxTDSzeUdCjV8c4SP1RBP7WrXYBFeMOKrs8ilHTetaulc8NXup9osvfaFE?=
+ =?us-ascii?Q?xL8UOjgymiDhmwYrPjTs4oZN8cC+VRia1GKgKD8Jpa44Jo7u615bpwlNYKj3?=
+ =?us-ascii?Q?B+BvwZiMiK9r64/p6Er1BLMIjjA1GCJKgkbqus05qEBEIqJvH8Q9fSZbN272?=
+ =?us-ascii?Q?fojhmWoP+cyF7T6glr8DK6uVmFZKNgS9J1jC4yna/e3otQgPP70szGgez6p6?=
+ =?us-ascii?Q?xnaB4g6jfeFCfZh9pLPadE8/u8VljnXTpbvYA5i0rm+jj+h2ENEG5uWKgROl?=
+ =?us-ascii?Q?dOfddq0EhDiwsNpZzNMq3uMXCOiRE+IJmLXy+5R9jiXboD8BRjLUlxWCCxn5?=
+ =?us-ascii?Q?u5MJF6OCCUxnKzXVVndAfTxV58zJEfQ3PbU2zY6iWspKZrRQLHi/rk2cEYZk?=
+ =?us-ascii?Q?5CUHfnfZRtOq69bYix1aL20+vS30iqgWP8mkFXjK2JF9mmFfNbi21gYgK96b?=
+ =?us-ascii?Q?vWGsitFA5weTffVPpyaCisqz8DLF/sM39sqyF1JsGuitxvIA2Owsdu4hJk9I?=
+ =?us-ascii?Q?cx8k2+QjC1y/GWN5BZgtrjBKXrS8CRlwakZ2VhvUqSt8WnU61ReEC4FvqVgf?=
+ =?us-ascii?Q?wLJzYpr5K4pkFfAtMxG2n8V1AVMiZJTetkb+7epA1HSFCiqUnXbuzaGLxGJ/?=
+ =?us-ascii?Q?pK8CkOy2YObrlcCm1yjVCR43MbeFHRwEZWg9oQ9TIo0w7XKGFy0RZlxBFkbV?=
+ =?us-ascii?Q?aoyJj1dZb1j0EOOjMaodNUDkrEZ9kEDqbmbZyA/FpWBdyJR0JKGzTaXVP5j2?=
+ =?us-ascii?Q?Lqa24r/WbO0RPmmlREQgvXacZG6Ql+0E522WzAi0enMC3TrHNs/qG75PeIwq?=
+ =?us-ascii?Q?S2a2+msG1MBUtGBX3akZN8cWDL3PH3+8CYl33Nhc7yQM1uyWeoAB2gwzzN8n?=
+ =?us-ascii?Q?xHlEUE3rTBlnWnZbqyaY5/jDcz4Ai7z6sVG7tYuV/0+X42gCD+2D+uaS0/qf?=
+ =?us-ascii?Q?slPpZsx00AUtKKhS0R3pualvTCsRxJdPGIxyLlk8ryh1Qqe/Ni/YB0TaMznG?=
+ =?us-ascii?Q?i5VytcV9cL8/pNmBcQZ6Z+qUY9Izci1vIjxWp7gGIMnFXN+e98fL5sPpUq5L?=
+ =?us-ascii?Q?ZkmcBtzEBuiVodQRn9KFW6MKPM5aJAz6+inBNw4pUGtyivP5swTKnyo1mgVJ?=
+ =?us-ascii?Q?Lth5Ivm7Y9ac8sBAKdMEPYMyD83GmQ9niGdqiLmIWP65fQl4BQye3UiMJyNJ?=
+ =?us-ascii?Q?Xe27RD6UKQXNqi9lheWUyjNnc4VDy6/WUe0ooi6Qh56BzTrnfek12acFW4KQ?=
+ =?us-ascii?Q?xSEDJxzVSOTZR6Snt5l+jse18Gau4XZ61IYsPh8fjODpnWmptchjCfkzx17w?=
+ =?us-ascii?Q?NW8I+wSkAKO/iJcw0AfvYR14HIpwl8dX3AAB4hgD46RdU0s9eHFNxfwYklPj?=
+ =?us-ascii?Q?3hMI59dnnpnlXt+1QlfVyQjsGTZOX7dU+5w8AemtdNAJqRE29UvrmkCOL/KT?=
+ =?us-ascii?Q?ZPgaBUouQqjn+K8gURocx8xTH+OX1TNUoiQGwvPd4GuHl0sYkuANdszln6Se?=
+ =?us-ascii?Q?H18fwx8kZByouwLX/nk4JdDPLXZ/nDDkMa/G9ypZ9oic/NjoxVGXZxz5wVB7?=
+ =?us-ascii?Q?uwpXeI+KD19u3FhTvgenBSlz7TvIxAcubhMx9rPWeDlLkalxXUxtAlp3KWTb?=
+ =?us-ascii?Q?pvB+HdWhJdAJsOTLRJsJYe8nr4FYkGZIAgkOR93Wbao=3D?=
+MIME-Version: 1.0
+
+--_000_YT2PR01MB486154C44BCEEE9B45DC137082149YT2PR01MB4861CANP_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+Good Morning everyone,
+
+Despite my poor connection, the meeting yesterday was quite fun, and I am e=
+xcited about the collaboration.  Here are the specific questions and associ=
+ated datasets that we would like to have answered:
+
+  *   Question 1: Can we predict the inshore significant wave height, wave =
+period, wave direction, current speed, and temperature profile using readil=
+y available weather and wave data from NDBC buoys in Lake Huron as well as =
+weather stations managed by Environment Canada and NOAA.  Part of this ques=
+tion is balancing the amount of data with the confidence in the prediction.=
+ Data provided: wave, temperature, and current data from the buoy.  Data ne=
+eded: Weather and wave data from NOAA and Environment Canada.
+  *   Question 2: Using the above model, we would like to predict the wave,=
+ current and temperature conditions for past drownings and rescues at Kinca=
+rdine and along the Huron shore of Bruce County.  Data needed: Historical W=
+eather and wave data from NOAA and Environment Canada.
+  *   Question 3: Predict the wave conditions and current visible in the ca=
+mera images, as well as the number and distribution of people on the beach =
+and in the water.  Data provided: anonymized images from the camera.  This =
+will be provided later once the images are anonymized, with a focus on prov=
+iding the model set first.
+
+Knowing that we have 3-4 months, our focus is on Questions 1 and2.
+
+Chris
+
+Dr. Chris Houser
+
+Dean, Faculty of Science
+Professor, School of the Environment
+Faculty of Science | University of Windsor
+Editor-in-Chief, Physical Geography
+________________________________
+From: Cassandra Forlani <Cassandra.Forlani@MyGeorgian.ca>
+Sent: Wednesday, November 30, 2022 5:35:26 PM
+To: Becky Smith <becky.smith@nii.ca>; Chris Houser <Chris.Houser@uwindsor.c=
+a>; Alex Smith <absmith9@uwindsor.ca>
+Cc: Yi-Chen Hsiao <Yi-Chen.Hsiao@MyGeorgian.ca>; Ruwindhu Dilanga Chandrara=
+tne Hettige Don <RuwindhuDilangaChandraratne.HettigeDon@MyGeorgian.ca>; Bru=
+nilda Xhaferllari <Brunilda.Xhaferllari@GeorgianCollege.ca>; Richard Rinald=
+o <Richard.Rinaldo@GeorgianCollege.ca>; Diksha Mongia <Diksha.Mongia@Georgi=
+anCollege.ca>; Dave Shorey <Dave.Shorey@GeorgianCollege.ca>
+Subject: Smart Beach Project Introduction meeting - MIC and Georgian Colleg=
+e
+
+Good evening everyone,
+
+Firstly, on behalf of my team - we want to say thank you so much for taking=
+ time out of your day today to discuss this project with us. We appreciate =
+all the information we received and are very excited to move forward with t=
+his project.
+
+The following link is a summary of our meeting of minutes: [https://res.cdn=
+.office.net/assets/mail/file-icon/png/docx_16x16.png] Meeting Minutes.docx<=
+https://can01.safelinks.protection.outlook.com/ap/w-59584e83/?url=3Dhttps%3=
+A%2F%2Fgeorgiancollege-my.sharepoint.com%2F%3Aw%3A%2Fg%2Fpersonal%2F2004907=
+26_student_georgianc_on_ca%2FEXKwyp-XngtPomHqj7Ikd40Bu06Bdu20onq1Like5BfdVg=
+%3Fe%3DeCrza0&data=3D05%7C01%7Cchris.houser%40uwindsor.ca%7C39453d5724ce40c=
+dd11f08dad3233084%7C12f933b33d614b199a4d689021de8cc9%7C0%7C0%7C638054445332=
+160218%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6=
+Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=3D3y6m%2BtnRMZNDay2wNST1T30NJ1=
+WlePwKwQZCJb19HGU%3D&reserved=3D0>
+Eventually, these minutes will be available via our SharePoint. We are hopi=
+ng to have that running by Sunday December 4th the latest.
+
+As discussed within the meeting minutes, we have the following action items=
+ to discuss:
+
+  *   Arrange weekly meetings with Dr. Alex Smith
+  *   Arrange monthly update meetings
+  *   Follow-up with Dr. Chris Houser about detailed outline
+
+Dr. Smith, please let us know several timeslots you're available so we can =
+coordinate our schedules for our weekly meeting.
+
+In regard to our monthly meeting, we shall send out an email later next wee=
+k to discuss availability.
+
+Once we have that general outline from Dr. Houser, we will be able to proce=
+ed with a more detailed proposal and project charter. We look forward to re=
+ceiving this information and we thank you Dr. Houser for taking time to giv=
+e us a more detailed outline.
+
+We hope you all have an amazing rest of your week,
+
+Cassandra, Ruwindhu, and Yi-Chen
+
+--_000_YT2PR01MB486154C44BCEEE9B45DC137082149YT2PR01MB4861CANP_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html><head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+></head>
+<body>
+<div dir=3D"ltr">
+<div></div>
+<div>
+<div>Good Morning everyone,<span></span></div>
+<div dir=3D"ltr"><br>
+</div>
+</div>
+<div dir=3D"ltr">Despite my poor connection, the meeting yesterday was quit=
+e fun, and I am excited about the collaboration. &nbsp;Here are the specifi=
+c questions and associated datasets that we would like to have answered:<sp=
+an></span><span></span></div>
+<div dir=3D"ltr">
+<ul>
+<li><b>Question 1</b>: Can we predict the inshore significant wave height, =
+wave period, wave direction, current speed, and temperature profile using r=
+eadily available weather and wave data from NDBC buoys in Lake Huron as wel=
+l as weather stations managed by
+ Environment Canada and NOAA. &nbsp;Part of this question is balancing the =
+amount of data with the confidence in the prediction.
+<span style=3D"font-size: inherit;"><b>Data provided</b>: wave, temperature=
+, and current data from the buoy. &nbsp;<b>Data needed</b>: Weather and wav=
+e data from NOAA and Environment Canada. &nbsp;</span></li><li><span style=
+=3D"font-size: inherit;"><b>Question 2</b>: Using the above model, we would=
+ like to predict the wave, current and temperature conditions for past drow=
+nings and rescues at Kincardine and along the Huron shore of Bruce County. =
+&nbsp;<b>Data needed</b><span style=3D"background-color:rgb(255, 255, 255);=
+display:inline !important">:
+ Historical Weather and wave data from NOAA and Environment Canada.</span><=
+span></span></span></li><li><span style=3D"font-size: inherit;"><b>Question=
+ 3</b>: Predict the wave conditions and current visible in the camera image=
+s, as well as the number and distribution of people on the beach and in the=
+ water. &nbsp;<b>Data provided</b>: anonymized images from the
+ camera. &nbsp;This will be provided later once the images are anonymized, =
+with a focus on providing the model set first.</span></li></ul>
+<div dir=3D"ltr">Knowing that we have 3-4 months, our focus is on Questions=
+ 1 and2. &nbsp;</div>
+<div dir=3D"ltr"><br>
+</div>
+<div dir=3D"ltr">Chris</div>
+</div>
+<div>
+<div id=3D"ms-outlook-mobile-signature">
+<div><br>
+</div>
+<div style=3D"direction:ltr">Dr. Chris Houser</div>
+<div><br>
+</div>
+<div style=3D"direction:ltr">Dean, Faculty of Science</div>
+<div style=3D"direction:ltr">Professor, School of the Environment</div>
+<div style=3D"direction:ltr">Faculty of Science | University of Windsor</di=
+v>
+<div style=3D"direction:ltr"></div>
+<div style=3D"direction:ltr">Editor-in-Chief, Physical Geography</div>
+</div>
+</div>
+</div>
+<hr style=3D"display:inline-block;width:98%" tabindex=3D"-1">
+<div id=3D"divRplyFwdMsg" dir=3D"ltr"><font face=3D"Calibri, sans-serif" st=
+yle=3D"font-size:11pt" color=3D"#000000"><b>From:</b> Cassandra Forlani &lt=
+;Cassandra.Forlani@MyGeorgian.ca&gt;<br>
+<b>Sent:</b> Wednesday, November 30, 2022 5:35:26 PM<br>
+<b>To:</b> Becky Smith &lt;becky.smith@nii.ca&gt;; Chris Houser &lt;Chris.H=
+ouser@uwindsor.ca&gt;; Alex Smith &lt;absmith9@uwindsor.ca&gt;<br>
+<b>Cc:</b> Yi-Chen Hsiao &lt;Yi-Chen.Hsiao@MyGeorgian.ca&gt;; Ruwindhu Dila=
+nga Chandraratne Hettige Don &lt;RuwindhuDilangaChandraratne.HettigeDon@MyG=
+eorgian.ca&gt;; Brunilda Xhaferllari &lt;Brunilda.Xhaferllari@GeorgianColle=
+ge.ca&gt;; Richard Rinaldo &lt;Richard.Rinaldo@GeorgianCollege.ca&gt;;
+ Diksha Mongia &lt;Diksha.Mongia@GeorgianCollege.ca&gt;; Dave Shorey &lt;Da=
+ve.Shorey@GeorgianCollege.ca&gt;<br>
+<b>Subject:</b> Smart Beach Project Introduction meeting - MIC and Georgian=
+ College
+</font>
+<div>&nbsp;</div>
+</div>
+<style type=3D"text/css" style=3D"display:none">
+<!--
+p
+	{margin-top:0;
+	margin-bottom:0}
+-->
+</style>
+<div dir=3D"ltr">
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<span style=3D"font-size:12pt">Good evening everyone,</span></div>
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<br>
+</div>
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<span style=3D"font-size:12pt">Firstly, on behalf of my team - we want to s=
+ay thank you so much for taking time out of your day today to discuss this =
+project with us. We appreciate all the information we received and are very=
+ excited to move forward with this
+ project.</span></div>
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<br>
+</div>
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<span style=3D"font-size:12pt">The following link is a summary of our meeti=
+ng of minutes:&nbsp;<span><a href=3D"https://can01.safelinks.protection.out=
+look.com/ap/w-59584e83/?url=3Dhttps%3A%2F%2Fgeorgiancollege-my.sharepoint.c=
+om%2F%3Aw%3A%2Fg%2Fpersonal%2F200490726_student_georgianc_on_ca%2FEXKwyp-Xn=
+gtPomHqj7Ikd40Bu06Bdu20onq1Like5BfdVg%3Fe%3DeCrza0&amp;data=3D05%7C01%7CCas=
+sandra.Forlani%40MyGeorgian.ca%7Cc9401d13b35e427d59dd08dad3a1c2a6%7Cda9a94b=
+6468149bcbd7cbab9eac0ad3c%7C0%7C0%7C638054988986843345%7CUnknown%7CTWFpbGZs=
+b3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C30=
+00%7C%7C%7C&amp;sdata=3DK1z1DKd1DtDQ94vZCGrKCwEMqXEdMY3TtAWxHgc5Zio%3D&amp;=
+reserved=3D0" originalsrc=3D"https://georgiancollege-my.sharepoint.com/:w:/=
+g/personal/200490726_student_georgianc_on_ca/EXKwyp-XngtPomHqj7Ikd40Bu06Bdu=
+20onq1Like5BfdVg?e=3DeCrza0" shash=3D"qe4Lqum+BH4aqGHoTrRy598ZEwfZKde8IYJvs=
+AoQn8aw5m9F1TseGPQazZ5UzAUiZVoZY3LACLIn/K/CedtvwHYwkmhxzjuAKlHMnLS4V2aXI3fc=
+k4has4HhDiulPzwtArZI6dj3zq9Yzdbyn4qd5HrbLHe1PF6Uw8Gs96Vh3ZE=3D" originalsrc=
+=3D"https://georgiancollege-my.sharepoint.com/:w:/g/personal/200490726_stud=
+ent_georgianc_on_ca/EXKwyp-XngtPomHqj7Ikd40Bu06Bdu20onq1Like5BfdVg?e=3DeCrz=
+a0" shash=3D"qiNhDIvCzTx3MN3Rl4PUtnoy8tq69vRDUQffpuY2p5m/ZGCy478YxOizxMqDBW=
+7/70gxjp4jwvX0lMp+WWGCm+Q8j1oMmEl1qhXJTJ4RO90o9+lKskBdfesXdVHEV3ujPTVEPhWvi=
+QvvQ1EORRgK38SElSva7JfoGi8ojRwwvn4=3D" rel=3D"noopener noreferrer" id=3D"OL=
+K_Beautified_OWA3c6f791b-bfbb-d46d-ab25-130b3d4d70ab" class=3D"x_OWAAutoLin=
+k x_eScj0 x_WSYlv" data-ogsc=3D"" data-loopstyle=3D"undefined" style=3D"pad=
+ding:0px 1px; border-radius:2px; background-color:rgb(243,242,241)"><img al=
+t=3D"" role=3D"presentation" src=3D"https://res.cdn.office.net/assets/mail/=
+file-icon/png/docx_16x16.png" style=3D"width:16px; height:16px; vertical-al=
+ign:middle; padding:1px 2px 2px 0px">Meeting
+ Minutes.docx</a></span></span></div>
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<span style=3D"font-size:12pt">Eventually, these minutes will be available =
+via our SharePoint. We are hoping to have that running by Sunday December 4=
+</span><span style=3D"font-size:12pt"><sup>th</sup></span><span style=3D"fo=
+nt-size:12pt">&nbsp;</span><span style=3D"font-size:12pt">the
+ latest.</span></div>
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<br>
+</div>
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<span style=3D"font-size:12pt">As discussed within the meeting minutes, we =
+have the following action items to discuss:</span></div>
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<ul>
+<li style=3D"font-size:12pt"><span style=3D"font-size:12pt">Arrange weekly =
+meetings with Dr. Alex Smith</span></li><li style=3D"font-size:12pt"><span =
+style=3D"font-size:12pt">Arrange monthly update meetings</span></li><li sty=
+le=3D"font-size:12pt">Follow-up with Dr. Chris Houser about detailed outlin=
+e&nbsp;</li></ul>
+<div><span style=3D"font-size:12pt">Dr. Smith, please let us know several t=
+imeslots you're available so we can coordinate our schedules for our weekly=
+ meeting.</span></div>
+<div><br>
+</div>
+<div><span style=3D"font-size:12pt">In regard to our monthly meeting, we sh=
+all send out an email later next week to discuss availability.</span></div>
+<div><br>
+</div>
+<div><span style=3D"font-size:12pt">Once we have that general outline from =
+Dr. Houser, we will be able to proceed with a more detailed proposal and pr=
+oject charter. We look forward to receiving this information and we thank y=
+ou Dr. Houser for taking time to give
+ us a more detailed outline.</span></div>
+<div><br>
+</div>
+<div><span style=3D"font-size:12pt">We hope you all have an amazing rest of=
+ your week,</span></div>
+<div><br>
+</div>
+<div><span style=3D"font-size:12pt">Cassandra, Ruwindhu, and Yi-Chen</span>=
+</div>
+</div>
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Arial,Helvetic=
+a,sans-serif; font-size:12pt; color:rgb(0,0,0); background-color:rgb(255,25=
+5,255)">
+<span style=3D"font-family:Calibri,Helvetica,sans-serif"></span></div>
+</div>
+</body>
+</html>
+
+--_000_YT2PR01MB486154C44BCEEE9B45DC137082149YT2PR01MB4861CANP_--
