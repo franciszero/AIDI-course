@@ -5,6 +5,20 @@ from numpy.random import choice
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+import sys
+import numpy as np
+from windy_gridworld import WindyGridworldEnv
+from numpy.random import choice
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+import pandas as pd
+
+pd.set_option('display.max_columns', 100)
+pd.set_option('display.max_rows', 100)
+pd.set_option('display.width', 2000)
+
 
 class Sarsa:
     def __init__(self):
@@ -19,11 +33,16 @@ class Sarsa:
 
     @staticmethod
     def get_direction(a):
-        if a == 0: return 'up'
-        elif a == 1: return 'right'
-        elif a == 2: return 'down'
-        elif a == 3: return 'left'
-        else: sys.exit(250)
+        if a == 0:
+            return 'up'
+        elif a == 1:
+            return 'right'
+        elif a == 2:
+            return 'down'
+        elif a == 3:
+            return 'left'
+        else:
+            sys.exit(250)
         pass
 
     def get_epision_greedy_action_policy(self, q, observation):
@@ -34,6 +53,7 @@ class Sarsa:
         return a, self.get_direction(a)
 
     def sarsa(self, total_episodes):
+        i = 0
         for k in range(total_episodes):
             current_state = self.env.reset()
             current_action, comment = self.get_epision_greedy_action_policy(self.Q, current_state)
@@ -45,22 +65,84 @@ class Sarsa:
                 self.Q[current_state][current_action] += self.alpha * td_error
                 if done:
                     break
+                pic = self.visualization()
+                p1 = pic.get_figure()
+                i += 1
+                p1.savefig(str(i) + '.jpg', dpi=15, bbox_inches='tight')
                 current_state = next_state
                 current_action = next_action
         return self.Q
 
-    def visualization(self, x=6, y=3):
+    def visualization(self):
         gridworld = np.zeros([7, 10])
         for x in range(7):
             for y in range(10):
-                state = x * 7 + y
-                gridworld[x][y] = np.max(self.Q[state])
-        fix, ax = plt.subplots(figsize=(x, y))
-        sns.heatmap(gridworld, annot=True)
-        pass
+                state = x * 10 + y
+                mm = np.argmax(self.Q[state])
+                gridworld[x][y] = mm
+        fix, ax = plt.subplots(figsize=(8, 4))
+        pic = sns.heatmap(gridworld, annot=True, ax=ax, vmin=0, vmax=3)
+        return pic
 
+    def show_Q(self):
+        return pd.DataFrame(self.Q).T
+
+
+from matplotlib import pyplot as plt
+from matplotlib import animation
+import pandas as pd
+
+f0 = pd.DataFrame({'firstColumn': [1,2,3,4,5], 'secondColumn': [1,2,3,4,5]})
+f1 = pd.DataFrame({'firstColumn': [5,4,3,2,1], 'secondColumn': [1,2,3,4,5]})
+f2 = pd.DataFrame({'firstColumn': [5,4,3.5,2,1], 'secondColumn': [5,4,3,2,1]})
+
+# make a global variable to store dataframes
+global mylist
+mylist=[f0,f1,f2]
+
+# First set up the figure, the axis, and the plot element we want to animate
+fig = plt.figure()
+ax = plt.axes(xlim=(0, 5), ylim=(0, 5))
+line, = ax.plot([], [], lw=2)
+
+# initialization function: plot the background of each frame
+def init():
+    line.set_data([], [])
+    return line,
+
+# animation function of dataframes' list
+def animate(i):
+    line.set_data(mylist[i]['firstColumn'], mylist[i]['secondColumn'])
+    return line,
+
+# call the animator, animate every 300 ms
+# set number of frames to the length of your list of dataframes
+anim = animation.FuncAnimation(fig, animate, frames=len(mylist), init_func=init, interval=300, blit=True)
+
+plt.show()
+
+
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib import animation
+
+fig = plt.figure()
+# data = np.random.rand(10, 10)
+# sns.heatmap(data, vmax=.8, square=True)
+
+
+def init():
+    sns.heatmap(np.zeros((7, 10)), vmax=.8, square=True, cbar=False)
+
+
+def animate(data):
+    sns.heatmap(data, square=True, cbar=False)
+
+
+anim = animation.FuncAnimation(fig, animate, init_func=init, frames=20, repeat=False)
 
 foo = Sarsa()
-foo.sarsa(100)
+foo.sarsa(1)
 foo.visualization()
-i = None
+n = None

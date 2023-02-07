@@ -5,8 +5,8 @@ import os
 model = YOLO('ultralyticsplus/yolov8s')
 
 # set model parameters
-model.overrides['conf'] = 0.25  # NMS confidence threshold
-model.overrides['iou'] = 0.45  # NMS IoU threshold
+model.overrides['conf'] = 0.15  # NMS confidence threshold
+model.overrides['iou'] = 0.2  # NMS IoU threshold
 model.overrides['agnostic_nms'] = False  # NMS class-agnostic
 model.overrides['max_det'] = 1000  # maximum number of detections per image
 
@@ -21,6 +21,16 @@ def findAllFile(base):
             yield f
 
 
+# categories = ['person', '1', 'car', '3', '4', '5', '6', 'truck']
+def cnt_persons(a):
+    i = 0
+    for r in a:
+        # print("%s, %.2f" % (categories[c], r.boxes.conf.numpy()[0]))
+        if int(r.boxes.cls.numpy()[0]) == 0:
+            i += 1
+    return i
+
+
 base = './images'
 for i in findAllFile(base):
     if not i.endswith("avif") and not i.endswith("png"):
@@ -29,9 +39,9 @@ for i in findAllFile(base):
         results = model.predict(base + '/' + i)
 
         # observe results
-        print(results[0].boxes)
-        # tmp = 'results/Burlington-Beachway-park-e1653057907969.jpg'
         render = render_result(model=model, image=base + '/' + i, result=results[0])
         tmp = results[0]
         # render.show()
+        cnt = cnt_persons(tmp)
+        print(str(cnt) + ' persons in ' + i)
         render.save('results' + '/' + i)
