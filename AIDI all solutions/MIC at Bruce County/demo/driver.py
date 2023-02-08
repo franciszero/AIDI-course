@@ -141,7 +141,7 @@ class DertResnet50:
         pass
 
 
-class Baseline:
+class Driver:
     def __init__(self, i='./images/', o='./results/'):
         self.input = i
         self.output = o
@@ -160,7 +160,7 @@ class Baseline:
             if filename == '.DS_Store':
                 continue
             print('processing : ' + filename)
-            if overwrite:
+            if not overwrite:
                 f1, f2 = os.path.splitext(filename)
                 img_paths = glob.glob(self.output + f1 + '*.jpg')
                 if len(img_paths) > 0:
@@ -177,5 +177,5 @@ class Baseline:
 
 
 if __name__ == '__main__':
-    foo = Baseline('./training data/')
+    foo = Driver('./training data/')
     foo.scanImages(overwrite=False)
