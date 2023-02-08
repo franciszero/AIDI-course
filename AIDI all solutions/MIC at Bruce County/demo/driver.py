@@ -24,7 +24,7 @@ class YOLOv8:
         pass
 
     def cnt_person(self, filename, save_file=False):
-        if filename.endswith("avif") or filename.endswith("png"):
+        if filename.endswith("avif"):  # or filename.endswith("png"):
             return -1
         results = self.model.predict(self.input + '/' + filename, verbose=0)
         boxes = results[0]
@@ -39,7 +39,7 @@ class YOLOv8:
     def __save_result(self, cnt, filename, boxes):
         render = render_result(model=self.model, image=self.input + filename, result=boxes)
         filename, file_extension = os.path.splitext(filename)
-        render.save(self.output + filename + '_' + str(cnt) + '_YOLOv8.' + file_extension)
+        render.save(self.output + filename + '_' + str(cnt) + '_YOLOv8.' + 'jpg')
         pass
 
 
@@ -65,7 +65,7 @@ class InsightFace:
         return bboxes, vbboxes
 
     def cnt_person(self, filename, save_file=False):
-        if filename.endswith("avif") or filename.endswith("png"):
+        if filename.endswith("avif"):  # or filename.endswith("png"):
             return -1
         # if not filename.endswith("jpg") and not filename.endswith("jpeg"):
         #     return -1
@@ -93,7 +93,7 @@ class InsightFace:
             cv2.circle(img, (vx2, vy1), 1, color, 2)
             cv2.circle(img, (vx2, vy2), 1, color, 2)
         filename, file_extension = os.path.splitext(filename)
-        cv2.imwrite(self.output + filename + '_' + str(cnt) + '_InsightFace.' + file_extension, img)
+        cv2.imwrite(self.output + filename + '_' + str(cnt) + '_InsightFace.' + 'jpg', img)
         pass
 
 
@@ -107,11 +107,11 @@ class DertResnet50:
         pass
 
     def cnt_person(self, filename, save_file=False):
-        if filename.endswith("avif") or filename.endswith("png"):
+        if filename.endswith("avif"):  # or filename.endswith("png"):
             return -1
         # url = "https://apiwp.thelocal.com/wp-content/uploads/2019/07/e54a92d3593dc8d20b84feb8f2654b2b7e8c3b6983b7be057e57769980052843.jpg"
         # image = Image.open(requests.get(url, stream=True).raw)
-        image = Image.open(self.input + filename)
+        image = Image.open(self.input + filename).convert('RGB')
         inputs = self.processor(images=image, return_tensors="pt")
         outputs = self.model(**inputs)
 
@@ -137,7 +137,7 @@ class DertResnet50:
             cv2.rectangle(img, (x1, y1), (x2, y2),
                           (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)), 2)
         filename, file_extension = os.path.splitext(filename)
-        cv2.imwrite(self.output + filename + '_' + str(cnt) + '_ResNet.' + file_extension, img)
+        cv2.imwrite(self.output + filename + '_' + str(cnt) + '_ResNet.' + 'jpg', img)
         pass
 
 
@@ -155,6 +155,10 @@ class Driver:
             for f in fs:
                 yield f
 
+    def conv2rgb(self, filename):
+        img = Image.open(self.input + filename)
+        return img.convert('RGB')
+
     def scanImages(self, overwrite=False):
         for filename in self.findAllFile():
             if filename == '.DS_Store':
@@ -164,7 +168,7 @@ class Driver:
                 f1, f2 = os.path.splitext(filename)
                 img_paths = glob.glob(self.output + f1 + '*.jpg')
                 if len(img_paths) > 0:
-                    print('Skipping. File_exists: ' + self.output + f1 + '*.jpg')
+                    print('Skipping.\n')
                     continue
             c1 = self.resnet.cnt_person(filename, save_file=True)
             print('Detected %2d persons with %s' % (c1, 'ResNet'))
@@ -177,5 +181,5 @@ class Driver:
 
 
 if __name__ == '__main__':
-    foo = Driver('./training data/')
+    foo = Driver(i='./data/beach_use/', o='./data/result_of_beach_use/')
     foo.scanImages(overwrite=False)
