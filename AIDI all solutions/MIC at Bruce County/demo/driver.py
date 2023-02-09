@@ -17,8 +17,8 @@ class YOLOv8:
         self.input = i
         self.output = o
         self.model = YOLO('ultralyticsplus/yolov8s')
-        self.model.overrides['conf'] = 0.15  # NMS confidence threshold
-        self.model.overrides['iou'] = 0.2  # NMS IoU threshold
+        self.model.overrides['conf'] = 0.5  # NMS confidence threshold
+        self.model.overrides['iou'] = 0.5  # NMS IoU threshold
         self.model.overrides['agnostic_nms'] = False  # NMS class-agnostic
         self.model.overrides['max_det'] = 1000  # maximum number of detections per image
         pass
@@ -181,5 +181,6 @@ class Driver:
 
 
 if __name__ == '__main__':
-    foo = Driver(i='./data/beach_use/', o='./data/result_of_beach_use/')
-    foo.scanImages(overwrite=False)
+    foo = Driver(i='./data/test_data/', o='./data/result_for_test_data/')
+    # foo = Driver(i='./data/beach_use/', o='./data/result_of_beach_use/')
+    foo.scanImages(overwrite=True)
