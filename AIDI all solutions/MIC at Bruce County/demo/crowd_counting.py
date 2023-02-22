@@ -17,9 +17,9 @@ vgg16 = models.vgg16_bn(pretrained=True)
 
 
 class CrowdCounting:
-    def __init__(self):
-        self.input_root = "./data/beach_use/"
-        self.output_root = './data/beach_use_for_crowd_counting/'
+    def __init__(self, input_root="./data/beach_use/", output_root='./data/beach_use_for_crowd_counting/'):
+        self.input_root = input_root
+        self.output_root = output_root
         parser = argparse.ArgumentParser('P2PNet evaluation script', parents=[self.get_args_parser()])
         self.args = parser.parse_args()
         os.environ["CUDA_VISIBLE_DEVICES"] = '{}'.format(self.args.gpu_id)
@@ -36,7 +36,8 @@ class CrowdCounting:
     def get_args_parser(self):
         parser = argparse.ArgumentParser('Set parameters for P2PNet evaluation', add_help=False)
         # * Backbone
-        parser.add_argument('--backbone', default='vgg16_bn', type=str, help="name of the convolutional backbone to use")
+        parser.add_argument('--backbone', default='vgg16_bn', type=str,
+                            help="name of the convolutional backbone to use")
         parser.add_argument('--row', default=2, type=int, help="row number of anchor points")
         parser.add_argument('--line', default=2, type=int, help="line number of anchor points")
         parser.add_argument('--output_dir', default='', help='path where to save')
@@ -112,13 +113,13 @@ class CrowdCounting:
                 yield f
 
 
-foo = CrowdCounting()
+foo = CrowdCounting(input_root="./data/test_data/", output_root='./data/beach_use_for_crowd_counting/')
 for filename in foo.findAllFile():
     if filename == '.DS_Store':
         continue
     print('processing : ' + filename)
     img_raw, samples = foo.read_samples(filename)
     points, predict_cnt = foo.crowd_counting(samples)
-    print('Detected %2d persons with %s' % (predict_cnt, 'ResNet'))
+    print('Detected %2d persons with %s' % (predict_cnt, 'P2PNet'))
     foo.img_save(img_raw, points, predict_cnt, filename)
     print("")
