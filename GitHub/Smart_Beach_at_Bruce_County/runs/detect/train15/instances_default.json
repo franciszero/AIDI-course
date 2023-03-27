@@ -1,0 +1,42 @@
+{
+	"categories": [{
+		"id": 1,
+		"name": "1",
+		"supercategory": ""
+	}],
+	"images": [{
+		"id": 1,
+		"width": 4056,
+		"height": 3040,
+		"file_name": "2022-08-31_09-50-16.jpg",
+		"license": 0,
+		"flickr_url": "",
+		"coco_url": "",
+		"date_captured": 0
+	}],
+	"annotations": [{
+		"id": 1,
+		"image_id": 1,
+		"category_id": 1,
+		"segmentation": [],
+		"area": 103643.76060000021,
+		"bbox": [3029.74, 1801.01, 205.02, 505.53],
+		"iscrowd": 0,
+		"attributes": {
+			"occluded": false,
+			"rotation": 0.0
+		}
+	}, {
+		"id": 2,
+		"image_id": 1,
+		"category_id": 1,
+		"segmentation": [],
+		"area": 86256.77059999989,
+		"bbox": [3315.65, 1770.68, 162.89, 529.54],
+		"iscrowd": 0,
+		"attributes": {
+			"occluded": false,
+			"rotation": 0.0
+		}
+	}]
+}
