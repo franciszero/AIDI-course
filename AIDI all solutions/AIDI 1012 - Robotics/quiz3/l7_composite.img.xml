@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xml:lang="en">
+   <Esri>
+      <CreaDate>20191224</CreaDate>
+      <CreaTime>11283500</CreaTime>
+      <ArcGISFormat>1.0</ArcGISFormat>
+      <SyncOnce>FALSE</SyncOnce>
+      <DataProperties>
+         <itemProps>
+            <itemName Sync="TRUE">l7_composite.img</itemName>
+            <itemLocation>
+               <linkage Sync="TRUE">file://\\ALI_WIN8\C$\Ali\Toronto_Landsat\l7_composite.img</linkage>
+               <protocol Sync="TRUE">Local Area Network</protocol>
+            </itemLocation>
+            <imsContentType Sync="TRUE">002</imsContentType>
+            <nativeExtBox>
+               <westBL Sync="TRUE">608893.000000</westBL>
+               <eastBL Sync="TRUE">638953.000000</eastBL>
+               <southBL Sync="TRUE">4825959.000000</southBL>
+               <northBL Sync="TRUE">4856079.000000</northBL>
+               <exTypeCode Sync="TRUE">1</exTypeCode>
+            </nativeExtBox>
+         </itemProps>
+         <coordRef>
+            <type Sync="TRUE">Projected</type>
+            <geogcsn Sync="TRUE">GCS_North_American_1983</geogcsn>
+            <csUnits Sync="TRUE">Linear Unit: Meter (1.000000)</csUnits>
+            <projcsn Sync="TRUE">UTM_17_T_E008</projcsn>
+            <peXml Sync="TRUE">&lt;ProjectedCoordinateSystem xsi:type='typens:ProjectedCoordinateSystem' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xs='http://www.w3.org/2001/XMLSchema' xmlns:typens='http://www.esri.com/schemas/ArcGIS/10.1'&gt;&lt;WKT&gt;PROJCS[&amp;quot;UTM_17_T_E008&amp;quot;,GEOGCS[&amp;quot;GCS_North_American_1983&amp;quot;,DATUM[&amp;quot;D_North_American_1983&amp;quot;,SPHEROID[&amp;quot;GRS_1980&amp;quot;,6378137.0,298.257222101]],PRIMEM[&amp;quot;Greenwich&amp;quot;,0.0],UNIT[&amp;quot;Degree&amp;quot;,0.0174532925199433]],PROJECTION[&amp;quot;Transverse_Mercator&amp;quot;],PARAMETER[&amp;quot;false_easting&amp;quot;,500000.0],PARAMETER[&amp;quot;false_northing&amp;quot;,0.0],PARAMETER[&amp;quot;central_meridian&amp;quot;,-81.0],PARAMETER[&amp;quot;scale_factor&amp;quot;,0.9996],PARAMETER[&amp;quot;latitude_of_origin&amp;quot;,0.0],UNIT[&amp;quot;Meter&amp;quot;,1.0]]&lt;/WKT&gt;&lt;XOrigin&gt;-5120900&lt;/XOrigin&gt;&lt;YOrigin&gt;-9998100&lt;/YOrigin&gt;&lt;XYScale&gt;450445547.3910538&lt;/XYScale&gt;&lt;ZOrigin&gt;-100000&lt;/ZOrigin&gt;&lt;ZScale&gt;10000&lt;/ZScale&gt;&lt;MOrigin&gt;-100000&lt;/MOrigin&gt;&lt;MScale&gt;10000&lt;/MScale&gt;&lt;XYTolerance&gt;0.001&lt;/XYTolerance&gt;&lt;ZTolerance&gt;0.001&lt;/ZTolerance&gt;&lt;MTolerance&gt;0.001&lt;/MTolerance&gt;&lt;HighPrecision&gt;true&lt;/HighPrecision&gt;&lt;/ProjectedCoordinateSystem&gt;</peXml>
+         </coordRef>
+         <RasterProperties>
+            <General>
+               <PixelDepth Sync="TRUE">8</PixelDepth>
+               <HasColormap Sync="TRUE">FALSE</HasColormap>
+               <CompressionType Sync="TRUE">RLE</CompressionType>
+               <NumBands Sync="TRUE">8</NumBands>
+               <Format Sync="TRUE">IMAGINE Image</Format>
+               <HasPyramids Sync="TRUE">TRUE</HasPyramids>
+               <SourceType Sync="TRUE">continuous</SourceType>
+               <PixelType Sync="TRUE">unsigned integer</PixelType>
+               <NoDataValue Sync="TRUE" />
+            </General>
+         </RasterProperties>
+         <copyHistory>
+            <copy source="D:\ALI\YorkU-Winter2020\Assignment\Assignment-Don Boys\Assignment_2\Assignment_2\l7_composite.img" dest="\\ALI_WIN8\C$\Ali\Toronto_Landsat\l7_composite.img" date="20191224" time="11283500" />
+         </copyHistory>
+      </DataProperties>
+      <SyncDate>20150126</SyncDate>
+      <SyncTime>10381000</SyncTime>
+      <ModDate>20150126</ModDate>
+      <ModTime>10381000</ModTime>
+   </Esri>
+   <dataIdInfo>
+      <envirDesc Sync="TRUE">Version 6.2 (Build 9200) ; Esri ArcGIS 10.2.2.3552</envirDesc>
+      <dataLang>
+         <languageCode value="eng" Sync="TRUE" />
+         <countryCode value="USA" Sync="TRUE" />
+      </dataLang>
+      <idCitation>
+         <resTitle Sync="TRUE">l7_composite.img</resTitle>
+         <presForm>
+            <PresFormCd value="005" Sync="TRUE" />
+         </presForm>
+      </idCitation>
+      <spatRpType>
+         <SpatRepTypCd value="002" Sync="TRUE" />
+      </spatRpType>
+      <dataExt>
+         <geoEle>
+            <GeoBndBox esriExtentType="search">
+               <exTypeCode Sync="TRUE">1</exTypeCode>
+               <westBL Sync="TRUE">-79.651308</westBL>
+               <eastBL Sync="TRUE">-79.271372</eastBL>
+               <northBL Sync="TRUE">43.849767</northBL>
+               <southBL Sync="TRUE">43.573646</southBL>
+            </GeoBndBox>
+         </geoEle>
+      </dataExt>
+   </dataIdInfo>
+   <mdLang>
+      <languageCode value="eng" Sync="TRUE" />
+      <countryCode value="USA" Sync="TRUE" />
+   </mdLang>
+   <mdChar>
+      <CharSetCd value="004" Sync="TRUE" />
+   </mdChar>
+   <distInfo>
+      <distFormat>
+         <formatName Sync="TRUE">Raster Dataset</formatName>
+      </distFormat>
+   </distInfo>
+   <mdHrLv>
+      <ScopeCd value="005" Sync="TRUE" />
+   </mdHrLv>
+   <mdHrLvName Sync="TRUE">dataset</mdHrLvName>
+   <refSysInfo>
+      <RefSystem>
+         <refSysID>
+            <identCode code="0" Sync="TRUE" />
+         </refSysID>
+      </RefSystem>
+   </refSysInfo>
+   <spatRepInfo>
+      <Georect>
+         <cellGeo>
+            <CellGeoCd Sync="TRUE" value="002" />
+         </cellGeo>
+         <numDims Sync="TRUE">2</numDims>
+         <tranParaAv Sync="TRUE">1</tranParaAv>
+         <chkPtAv Sync="TRUE">0</chkPtAv>
+         <cornerPts>
+            <pos Sync="TRUE">608893.000000 4825959.000000</pos>
+         </cornerPts>
+         <cornerPts>
+            <pos Sync="TRUE">608893.000000 4856079.000000</pos>
+         </cornerPts>
+         <cornerPts>
+            <pos Sync="TRUE">638953.000000 4856079.000000</pos>
+         </cornerPts>
+         <cornerPts>
+            <pos Sync="TRUE">638953.000000 4825959.000000</pos>
+         </cornerPts>
+         <centerPt>
+            <pos Sync="TRUE">623923.000000 4841019.000000</pos>
+         </centerPt>
+         <axisDimension type="002">
+            <dimSize Sync="TRUE">501</dimSize>
+            <dimResol>
+               <value Sync="TRUE" uom="Meter">60.000000</value>
+            </dimResol>
+         </axisDimension>
+         <axisDimension type="001">
+            <dimSize Sync="TRUE">502</dimSize>
+            <dimResol>
+               <value Sync="TRUE" uom="Meter">60.000000</value>
+            </dimResol>
+         </axisDimension>
+         <ptInPixel>
+            <PixOrientCd Sync="TRUE" value="001" />
+         </ptInPixel>
+      </Georect>
+   </spatRepInfo>
+   <contInfo>
+      <ImgDesc>
+         <contentTyp>
+            <ContentTypCd Sync="TRUE" value="001" />
+         </contentTyp>
+         <covDim>
+            <Band>
+               <dimDescrp Sync="TRUE">Layer_1</dimDescrp>
+               <bitsPerVal Sync="TRUE">8</bitsPerVal>
+               <valUnit>
+                  <UOM type="length" />
+               </valUnit>
+            </Band>
+            <Band>
+               <dimDescrp Sync="TRUE">Layer_2</dimDescrp>
+               <bitsPerVal Sync="TRUE">8</bitsPerVal>
+               <valUnit>
+                  <UOM type="length" />
+               </valUnit>
+            </Band>
+            <Band>
+               <dimDescrp Sync="TRUE">Layer_3</dimDescrp>
+               <bitsPerVal Sync="TRUE">8</bitsPerVal>
+               <valUnit>
+                  <UOM type="length" />
+               </valUnit>
+            </Band>
+            <Band>
+               <dimDescrp Sync="TRUE">Layer_4</dimDescrp>
+               <bitsPerVal Sync="TRUE">8</bitsPerVal>
+               <valUnit>
+                  <UOM type="length" />
+               </valUnit>
+            </Band>
+            <Band>
+               <dimDescrp Sync="TRUE">Layer_5</dimDescrp>
+               <bitsPerVal Sync="TRUE">8</bitsPerVal>
+               <valUnit>
+                  <UOM type="length" />
+               </valUnit>
+            </Band>
+            <Band>
+               <dimDescrp Sync="TRUE">Layer_6</dimDescrp>
+               <bitsPerVal Sync="TRUE">8</bitsPerVal>
+               <valUnit>
+                  <UOM type="length" />
+               </valUnit>
+            </Band>
+            <Band>
+               <dimDescrp Sync="TRUE">Layer_7</dimDescrp>
+               <bitsPerVal Sync="TRUE">8</bitsPerVal>
+               <valUnit>
+                  <UOM type="length" />
+               </valUnit>
+            </Band>
+            <Band>
+               <dimDescrp Sync="TRUE">Layer_8</dimDescrp>
+               <bitsPerVal Sync="TRUE">8</bitsPerVal>
+               <valUnit>
+                  <UOM type="length" />
+               </valUnit>
+            </Band>
+         </covDim>
+      </ImgDesc>
+   </contInfo>
+   <mdDateSt Sync="TRUE">20150126</mdDateSt>
+</metadata>

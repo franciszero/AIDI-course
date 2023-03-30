@@ -1,0 +1,77 @@
+
+Q7
+DEM has
+# Columns = ?
+# Rows = ?
+
+Code:
+    dem1 = rio.open(r"dem1bsq1.tif")
+    print(dem1.bounds)
+Answers:
+    This bounding box of the tif file defined the area of the map：
+    BoundingBox(left=609364.347, bottom=4826243.647, right=652114.347, top=4857533.647)
+    columns = right-left = 42750.0
+    rows = top - bottom = 31290.0
+
+
+
+QUESTION 9
+Give the pixel size for:
+DEM = ?
+l7_composite = ?
+
+Code:
+
+    dem1 = rio.open(r"dem1bsq1.tif")
+    print(dem1.width,dem1.height)
+
+    raster = rio.open(r"l7_composite.img")
+    print(raster.width, raster.height)
+
+Answer:
+
+    The pixel size of DEM          is    height=1043, width=1425
+    The pixel size of l7_composite is    height=502,   width=501
+
+
+
+
+
+QUESTION 10
+Find statistics for DEM?
+
+Code:
+    dem1 = rio.open(r"dem1bsq1.tif")
+    # calculate bands stats
+    array = dem1.read()
+    stats = []
+    for band in array:
+        stats.append({
+            'min': band.min(),
+            'mean': band.mean(),
+            'median': np.median(band),
+            'max': band.max()})
+    print(stats)
+Answer:
+    min = 71
+    mean = 134.09
+    median = 140.0
+    max = 260
+
+Question 11
+
+code:
+
+    raster = rio.open(r"l7_composite.img")
+    print("linear unit: %s" % raster.crs.linear_units)
+    bbox = raster.bounds
+    w = (bbox.right - bbox.left) / 1000
+    h = (bbox.top - bbox.bottom) / 1000
+    print("bounding box: %.2f * %.2f = %.2f " % (w, h, w * h))
+
+Answer:
+
+    width=30.06
+    height=30.12
+    area of map: 905.41 square km
+
