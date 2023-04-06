@@ -60,4 +60,3 @@ class QAgent(Agent, ABC):
                     self.steps.append(step)
                     break
         return self.steps
-    

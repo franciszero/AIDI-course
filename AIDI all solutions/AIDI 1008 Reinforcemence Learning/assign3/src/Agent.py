@@ -60,7 +60,6 @@ class Agent:
 
     def read_policy(self, checkpoint_name):
         try:
-            print('read checkpoint from ./' + checkpoint_name + '.json')
             checkpoint = json.loads(open('./' + checkpoint_name + '.json', 'r').read())
             self.Q = defaultdict(lambda: [0] * self.n_actions, checkpoint["Q"])
             self.steps = checkpoint["steps"]
@@ -70,6 +69,7 @@ class Agent:
                 self.dynamic_e_greedy = checkpoint["dynamic_epsilon"]
                 self.epsilon_start = checkpoint["epsilon"]
                 self.epsilon = self.epsilon_start
+            print('read checkpoint from ./' + checkpoint_name + '.json')
         except Exception:
             print("skip from reading checkpoint: ", checkpoint_name)
             pass
@@ -89,8 +89,8 @@ class Agent:
         fig, ax = plt.subplots(1, 1, figsize=(10, 3), dpi=100)
         sns.lineplot(data=f, x="x", y="y", hue="hue", markers=False, dashes=False, lw=1, ax=ax)
 
-        ax.set_title('Training Results')
-        ax.set_xlabel('Training Episodes')
+        ax.set_title('Visualization')
+        ax.set_xlabel('Episodes')
         ax.set_ylabel('Lifetime Steps')
         ax.set_yscale('log')
         ax.grid(color='black', linestyle='--', which='major', linewidth=0.5)
