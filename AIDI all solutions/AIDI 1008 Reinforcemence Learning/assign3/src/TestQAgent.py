@@ -23,14 +23,14 @@ from Environment import EnvCartPole
 
 # train agent1
 env = EnvCartPole(discrete_base=8, new_step_api=False)
-agent1 = QAgent(env, n_episodes=100, n_steps=1000, gamma=0.99, alpha=0.5, epsilon=1, )
+agent1 = QAgent(env, n_episodes=300, n_steps=1000, gamma=0.99, alpha=0.5, epsilon=1, )
 cp1 = "policy1"
 agent1.run(checkpoint_name=cp1, new_r=False)
 agent1.visualization()
 
 # train agent2
 env = EnvCartPole(discrete_base=8, new_step_api=False)
-agent2 = QAgent(env, n_episodes=100, n_steps=1000, gamma=0.99, alpha=0.5, epsilon=None,
+agent2 = QAgent(env, n_episodes=300, n_steps=1000, gamma=0.99, alpha=0.5, epsilon=None,
                 epsilon_start=0.5, epsilon_end=0.0001, epsilon_decay=1.0e+04, )
 cp2 = "policy2"
 agent2.run(checkpoint_name=cp2, new_r=False)
