@@ -71,6 +71,7 @@ class Agent:
                 self.epsilon_start = checkpoint["epsilon"]
                 self.epsilon = self.epsilon_start
         except Exception:
+            print("skip from reading checkpoint: ", checkpoint_name)
             pass
 
     def visualization(self, last_n_steps=-1000, outside_df=None):
