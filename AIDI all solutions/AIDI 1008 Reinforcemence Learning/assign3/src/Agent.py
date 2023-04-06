@@ -74,7 +74,7 @@ class Agent:
             print("skip from reading checkpoint: ", checkpoint_name)
             pass
 
-    def visualization(self, last_n_steps=-1000, outside_df=None):
+    def visualization(self, last_n_steps=0, outside_df=None):
         if outside_df is not None:
             f = outside_df
         else:

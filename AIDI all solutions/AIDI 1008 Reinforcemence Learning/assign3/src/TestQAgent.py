@@ -46,4 +46,4 @@ test2 = agent2.test(checkpoint_name=cp2, new_r=False)
 df = pd.DataFrame({"random": test1[-1000:], "smart": test2[-1000:]})
 df = df.stack().reset_index()
 df.columns = ["x", "hue", "y"]
-agent2.visualization(outside_df=df)
+agent2.visualization(last_n_steps=-1000, outside_df=df)
