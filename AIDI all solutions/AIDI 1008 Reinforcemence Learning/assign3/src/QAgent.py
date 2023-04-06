@@ -55,8 +55,9 @@ class QAgent(Agent, ABC):
             s = self.env.reset(discretize=self.state_discretizing)  # ------     Initialize S
             for step in count():
                 a = self.action(s)
-                _, _, done, trunc = self.env.step(a, discretize=self.state_discretizing, new_reward=new_r)
+                s_, _, done, trunc = self.env.step(a, discretize=self.state_discretizing, new_reward=new_r)
+                s = s_
                 if done or trunc:  # ----------------------------------------------------     until S is terminal
-                    self.steps.append(step)
+                    self.steps.append(step + 1)
                     break
         return self.steps
