@@ -50,7 +50,7 @@ class DQNAgent:
         if np.random.uniform(0, 1) < self.exploration_proba:  # exploration
             return np.random.choice(range(self.n_actions))
         else:  # exploitation 1-epsilon
-            q_values = self.model.predict(current_state)[0]
+            q_values = self.model.predict(current_state, verbose=0)[0]
             print("This is qvalues:", q_values)
             return np.argmax(q_values)
 
@@ -89,9 +89,9 @@ class DQNAgent:
             next_state = experience["next_state"]
 
             # We compute the Q-values of S_t
-            q_current_state = self.model.predict(current_state)
+            q_current_state = self.model.predict(current_state, verbose=0)
             if not is_terminate:  # if not a terminal state
-                q_next_state = self.model.predict(next_state)
+                q_next_state = self.model.predict(next_state, verbose=0)
                 q_target = q_target + self.gamma * np.max(q_next_state[0])
             q_current_state[0][action] = q_target  # update it to the experience of current state
             # train the model
