@@ -119,10 +119,12 @@ optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
 memory = ReplayMemory(10000)
 
 steps_done = 0
+eps_threshold = 0
+loss = 0.
 
 
 def select_action(state):
-    global steps_done
+    global steps_done, eps_threshold
     sample = random.random()
     eps_threshold = EPS_END + (EPS_START - EPS_END) * math.exp(-1. * steps_done / EPS_DECAY)
     steps_done += 1
@@ -165,17 +167,18 @@ def plot_durations(show_result=False):
             display.display(plt.gcf())
 
 
-"""
-Training loop
-Finally, the code for training our model.
-
-Here, you can find an optimize_model function that performs a single step of the optimization. It first samples a 
-batch, concatenates all the tensors into a single one, computes Q(st, at) and V(s_(t+1)) = max Q(s_(t+1), a) and 
-combines them into our loss. By definition we set V(s)=0 if s is a terminal state. We also use a target network to 
-compute V(s_(t+1)) for added stability. The target network is updated at every step with a soft update controlled 
-by the hyperparameter TAU, which was previously defined.
-"""
 def optimize_model():
+    """
+    Training loop
+    Finally, the code for training our model.
+
+    Here, you can find an optimize_model function that performs a single step of the optimization. It first samples a
+    batch, concatenates all the tensors into a single one, computes Q(st, at) and V(s_(t+1)) = max Q(s_(t+1), a) and
+    combines them into our loss. By definition we set V(s)=0 if s is a terminal state. We also use a target network to
+    compute V(s_(t+1)) for added stability. The target network is updated at every step with a soft update controlled
+    by the hyperparameter TAU, which was previously defined.
+    """
+    global loss
     if len(memory) < BATCH_SIZE:
         return
     transitions = memory.sample(BATCH_SIZE)
@@ -235,7 +238,7 @@ restarting training can produce better results if convergence is not observed.
 if torch.cuda.is_available():
     num_episodes = 600
 else:
-    num_episodes = 500
+    num_episodes = 200
 
 for i_episode in range(num_episodes):
     # Initialize the environment and get it's state
@@ -270,6 +273,7 @@ for i_episode in range(num_episodes):
         target_net.load_state_dict(target_net_state_dict)
 
         if done:
+            print("[%d/%d]: %d, %.4f, %.4f" % (i_episode, num_episodes, t + 1, eps_threshold, loss))
             episode_durations.append(t + 1)
             plot_durations()
             break
