@@ -30,7 +30,7 @@ class Agent:
         pass
 
     @abstractmethod
-    def learning(self, s, a, r, s_):
+    def learning(self, s, a, r, s_, d):
         pass
 
     @abstractmethod

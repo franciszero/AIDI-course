@@ -53,7 +53,10 @@ class EnvCartPole:
         if discretize:
             return self.state_discretize(s)
         else:
-            return np.array([s])
+            if isinstance(s[1], dict) and isinstance(s[0], np.ndarray):
+                return np.array([s[0]])
+            else:
+                return np.array([s])
 
     def step(self, a, discretize=False, new_reward=False):
         """
@@ -65,15 +68,21 @@ class EnvCartPole:
             s_, r, terminated = self._env.step(a)[:3]
             truncated = False
 
-        if terminated:
-            s_ = None  # delete s_ after a terminate state
+        # if terminated:
+        #     s_ = None  # delete s_ after a terminate state
+        # else:
+        if discretize:
+            s_ = self.state_discretize(s_)  # discretize s_ to a limited state_space
         else:
-            if discretize:
-                s_ = self.state_discretize(s_)  # discretize s_ to a limited state_space
-            else:
-                s_ = np.array([s_])
+            s_ = np.array([s_])
 
         if new_reward:  # instead of the default setting, only a punishment will return when failed, otherwise 0.
             r = -1 if terminated else 0
 
         return s_, r, terminated, truncated
+
+
+if __name__ == '__main__':
+    env = EnvCartPole(new_step_api=False)
+    for i in range(10):
+        print(env.reset(discretize=False))

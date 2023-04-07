@@ -48,8 +48,8 @@ class QAgent(Agent, ABC):
         pass
 
     def test(self, checkpoint_name, new_r=False):
-        print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         self.read_policy(checkpoint_name)  # read policy from checkpoint
+        print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         self.steps = []
         for episode in range(1, self.n_episodes + 1):  # Loop for each episode
             s = self.env.reset(discretize=self.state_discretizing)  # Initialize S

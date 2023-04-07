@@ -1,22 +1,4 @@
-import random
-import numpy as np
-import gym
-from abc import ABC, abstractmethod
-from collections import defaultdict, namedtuple, deque
-import matplotlib.pyplot as plt
-from keras import Sequential
-from keras.activations import relu, linear
-from keras.layers import Dense, Dropout
-from keras.losses import mse, huber_loss
-from keras.optimizers import Adam
-from keras.optimizers.optimizer_experimental.adamw import AdamW
-from scipy.stats import norm
-import math
-import json
-import seaborn as sns
 import pandas as pd
-from itertools import count
-import tensorflow as tf
 
 from QAgent import QAgent
 from Environment import EnvCartPole
@@ -37,13 +19,15 @@ agent2.run(checkpoint_name=cp2, new_r=False)
 agent2.visualization()
 
 # test agent1+agent2
-agent1.n_episodes = 100
+agent1 = QAgent(env, n_episodes=1000, epsilon=1)
 test1 = agent1.test(checkpoint_name=cp1, new_r=False)
-agent2.n_episodes = 100
+
+agent2 = QAgent(env, n_episodes=1000, epsilon=None)
 test2 = agent2.test(checkpoint_name=cp2, new_r=False)
 
 # plot and compare them
-df = pd.DataFrame({"random": test1[-1000:], "smart": test2[-1000:]})
+df = pd.DataFrame({"Random Baseline": test1[-1000:], "Smart Agent": test2[-1000:]})
 df = df.stack().reset_index()
 df.columns = ["x", "hue", "y"]
+
 agent2.visualization(last_n_steps=-1000, outside_df=df)
