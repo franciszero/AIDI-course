@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import pandas as pd
 from abc import ABC, abstractmethod
 from collections import defaultdict, namedtuple, deque
 
@@ -19,11 +20,10 @@ from Environment import EnvCartPole
 
 # set up matplotlib
 import matplotlib
+
 is_ipython = 'inline' in matplotlib.get_backend()
 if is_ipython:
     from IPython import display
-
-
 
 
 class DQNAgent(Agent, ABC):
@@ -33,18 +33,16 @@ class DQNAgent(Agent, ABC):
                  checkpoint_name=None, ):
         super().__init__(environment, n_episodes, n_steps, gamma, alpha,
                          epsilon, epsilon_start, epsilon_end, epsilon_decay, checkpoint_name)
-        self.state_discretizing = False  # DQN support a continues state space, then False
+        self.env.discretize = False  # DQN support a continues state space, then False
         self.experiences = self.ExperienceReplay(memory_cap, batch_size)
         # DNN
         self.optimizer = Adam(learning_rate=self.lr, amsgrad=True)
-        self.policy_net = self.DNN()
-        self.policy_net.save_weights(self.checkpoint_name + "_policy_net.h5")  # reset weights checkpoint
-        self.target_net = self.DNN()
-        self.target_net.save_weights(self.checkpoint_name + "_target_net.h5")  # reset weights checkpoint
+        self.policy_net = self.DNN("policy_net")
+        self.target_net = self.DNN("target_net")
         self.TAU = tau  # for a soft update if less than 1
         self.loss = 0.
 
-    def DNN(self):
+    def DNN(self, model_name):
         dnn = Sequential([
             Input(shape=(self.n_obs_space,)),
             Dense(128, activation="relu"),
@@ -52,6 +50,8 @@ class DQNAgent(Agent, ABC):
             Dense(self.n_actions, activation="linear")
         ])
         dnn.compile(loss=mse, optimizer=Adam(learning_rate=self.lr))
+        dnn._name = model_name
+        dnn.save_weights("%s_%s.h5" % (self.checkpoint_name, dnn._name))  # reset weights checkpoint
         return dnn
 
     class ExperienceReplay(object):
@@ -90,30 +90,7 @@ class DQNAgent(Agent, ABC):
 
     def keep_running(self, new_r=False):
         self.read_policy()  # read policy from checkpoint
-        self.policy_net.load_weights(self.checkpoint_name + "_policy_net.h5")  # load weights
-        print("load weights to policy_net")
-        self.target_net.load_weights(self.checkpoint_name + "_target_net.h5")  # load weights
-        print("load weights to target_net")
         self.run(new_r=new_r)
-
-    def test(self, new_r=False):
-        self.read_policy()  # read policy from checkpoint
-        self.policy_net.load_weights(self.checkpoint_name + "_policy_net.h5")  # load weights
-        print("load weights to policy_net")
-        self.target_net.load_weights(self.checkpoint_name + "_target_net.h5")  # load weights
-        print("load weights to target_net")
-        print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
-        self.steps = []
-        for episode in range(1, self.n_episodes + 1):  # Loop for each episode
-            s = self.env.reset(discretize=self.state_discretizing)  # Initialize S
-            for step in count():
-                a = self.action(s)
-                s, _, done, trunc = self.env.step(a, discretize=self.state_discretizing,
-                                                  new_reward=new_r)  # directly use s=s_
-                if done or trunc:  # until S is terminal
-                    self.steps.append(step + 1)
-                    break
-        return self.steps
 
     def plot_durations(self, show_result=False):
         plt.figure(1, figsize=(10, 3), dpi=100)
@@ -172,12 +149,11 @@ class DQNAgent(Agent, ABC):
         pass
 
     def run(self, new_r=False):
-        print("Epsilon starts from %.3f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         for episode in range(1, self.n_episodes + 1):
-            s = self.env.reset(discretize=self.state_discretizing)
+            s = self.env.reset()
             for step in range(1, self.n_steps + 1):
                 a = self.action(s)
-                s_, r, done, trunc = self.env.step(a, discretize=self.state_discretizing, new_reward=new_r)
+                s_, r, done, trunc = self.env.step(a, new_reward=new_r)
                 self.learning(s, a, r, s_, done)
                 s = s_
                 self.sum_steps += 1  # update e-greedy after each episode
@@ -185,24 +161,59 @@ class DQNAgent(Agent, ABC):
                     self.policy_net.save("./")
                     self.steps.append(step)
                     self.avg_steps.append(np.mean(self.steps[-10:]))
-                    # if episode % 5 == 0:
-                    #     self.plot_durations()
-                    print("[%d/%d]: %d, %.4f, %.4f" % (episode, self.n_episodes, step, self.epsilon, self.loss))
+                    if episode % 1 == 0:
+                        # self.plot_durations()
+                        print("[%d/%d]: steps %d, epsilon %.4f, loss %.4f" % (episode, self.n_episodes, step, self.epsilon, self.loss))
                     if episode % 500 == 0:
                         print("[%d/%d]: %d" % (episode, self.n_episodes, step + 1))
                     if episode % 100 == 0:
                         self.save_policy()
-                        self.policy_net.save_weights(self.checkpoint_name + "_policy_net.h5")
-                        self.target_net.save_weights(self.checkpoint_name + "_target_net.h5")
                     break
         print("Epsilon ends at %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
+        self.save_policy()
         pass
+
+    def test(self, new_r=False):
+        self.read_policy()  # read policy from checkpoint
+        self.steps = []
+        for episode in range(1, self.n_episodes + 1):  # Loop for each episode
+            s = self.env.reset()  # Initialize S
+            for step in count():
+                a = self.action(s)
+                s, _, done, trunc = self.env.step(a, new_reward=new_r)  # directly use s=s_
+                if done or trunc:  # until S is terminal
+                    self.steps.append(step + 1)
+                    break
+        return self.steps
 
 
 if __name__ == '__main__':
-    env = EnvCartPole(discrete_base=8, new_step_api=False)
-    agent3 = DQNAgent(env, n_episodes=250, n_steps=1000, gamma=0.99,
+    env = EnvCartPole(new_step_api=False)
+    agent3 = DQNAgent(env, n_episodes=10, n_steps=1000, gamma=0.99, epsilon=1,
                       memory_cap=1000, batch_size=128, alpha=1.0e-4, tau=0.005,
-                      epsilon=None, epsilon_start=0.9, epsilon_end=0.05, epsilon_decay=1.0e+03, )
-    agent3.run(checkpoint_name="policy3", new_r=False)
+                      checkpoint_name="policy3", )
+    agent3.run(new_r=False)
     agent3.visualization()
+
+    env = EnvCartPole(new_step_api=False)
+    agent4 = DQNAgent(env, n_episodes=20, n_steps=1000, gamma=0.99,
+                      memory_cap=1000, batch_size=128, alpha=1.0e-4, tau=0.005,
+                      epsilon=None, epsilon_start=0.9, epsilon_end=0.05, epsilon_decay=1.0e+03,
+                      checkpoint_name="policy4", )
+    agent4.run(new_r=False)
+    agent4.visualization()
+
+    # test agent3+agent4
+    agent3 = DQNAgent(env, n_episodes=20, epsilon=1, checkpoint_name="policy3", )
+    test3 = agent3.test(new_r=False)
+
+    agent4 = DQNAgent(env, n_episodes=20, epsilon=None, checkpoint_name="policy4", )
+    test4 = agent4.test(new_r=False)
+
+    # plot and compare them
+    df = pd.DataFrame({"Random Baseline": test3[-1000:], "Deep Q-Learning Agent": test4[-1000:]})
+    df = df.stack().reset_index()
+    df.columns = ["x", "hue", "y"]
+
+    agent4.visualization(last_n_steps=-1000, outside_df=df)
+

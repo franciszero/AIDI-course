@@ -5,7 +5,7 @@ import math
 
 
 class EnvCartPole:
-    def __init__(self, discrete_base=10, new_step_api=True):
+    def __init__(self, discretize=False, discrete_base=None, new_step_api=True):
         self.new_step_api = new_step_api
         if new_step_api:
             self._env = gym.make("CartPole-v1", new_step_api=new_step_api)
@@ -14,6 +14,7 @@ class EnvCartPole:
         self.n_actions = self._env.action_space.n
         self.n_observation_space = self._env.observation_space.shape[0]
         self.base = discrete_base
+        self.discretize = discretize
         pass
 
     def sample_action(self):
@@ -48,9 +49,9 @@ class EnvCartPole:
         # print("current bin id: ", bins.sum())
         return str(bins.sum())
 
-    def reset(self, discretize=False):
+    def reset(self):
         s = self._env.reset()
-        if discretize:
+        if self.discretize:
             return self.state_discretize(s)
         else:
             if isinstance(s[1], dict) and isinstance(s[0], np.ndarray):
@@ -58,7 +59,7 @@ class EnvCartPole:
             else:
                 return np.array([s])
 
-    def step(self, a, discretize=False, new_reward=False):
+    def step(self, a, new_reward=False):
         """
         SEE API definition: https://github.com/openai/gym/blob/master/gym/core.py
         """
@@ -71,7 +72,7 @@ class EnvCartPole:
         # if terminated:
         #     s_ = None  # delete s_ after a terminate state
         # else:
-        if discretize:
+        if self.discretize:
             s_ = self.state_discretize(s_)  # discretize s_ to a limited state_space
         else:
             s_ = np.array([s_])

@@ -28,6 +28,7 @@ class Agent:
         self.sum_steps = 0
         self.avg_steps = []
         self.checkpoint_name = checkpoint_name
+        self.policy_net, self.target_net = None, None
         pass
 
     @abstractmethod
@@ -42,7 +43,7 @@ class Agent:
         return random.randint(0, self.n_actions)
 
     def keep_running(self, new_r=False):
-        self.read_policy(self.checkpoint_name)  # read checkpoint
+        self.read_policy()  # read checkpoint
         self.run(new_r=new_r)
 
     @abstractmethod
@@ -57,6 +58,13 @@ class Agent:
         checkpoint = {"Q": self.Q, "steps": self.steps, "avg_steps": self.avg_steps,
                       "epsilon": self.epsilon, "dynamic_epsilon": self.dynamic_e_greedy}
         open('./' + self.checkpoint_name + '.json', 'w').write(json.dumps(checkpoint))
+        print("save runtime environments")
+        if self.policy_net is not None:
+            self.policy_net.save_weights("%s_%s.h5" % (self.checkpoint_name, self.policy_net._name))
+            print("save policy_net")
+        if self.target_net is not None:
+            self.target_net.save_weights("%s_%s.h5" % (self.checkpoint_name, self.target_net._name))
+            print("save target_net")
         pass
 
     def read_policy(self):
@@ -68,11 +76,16 @@ class Agent:
             self.avg_steps = checkpoint["avg_steps"]
             if self.dynamic_e_greedy and checkpoint["dynamic_epsilon"]:
                 self.dynamic_e_greedy = checkpoint["dynamic_epsilon"]
-                self.epsilon_start = checkpoint["epsilon"]
-                self.epsilon = self.epsilon_start
+                self.epsilon = checkpoint["epsilon"]
             print('read checkpoint from ./' + self.checkpoint_name + '.json')
-        except Exception:
+            self.policy_net.load_weights("%s_%s.h5" % (self.checkpoint_name, self.policy_net._name))  # load policy_net
+            print("load weights to policy_net")
+            self.target_net.load_weights("%s_%s.h5" % (self.checkpoint_name, self.target_net._name))  # load target_net
+            print("load weights to target_net")
+            print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
+        except Exception as e:
             print("skip from reading checkpoint: ", self.checkpoint_name)
+            print(e)
             pass
 
     def visualization(self, last_n_steps=0, outside_df=None):
