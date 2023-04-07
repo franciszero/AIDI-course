@@ -10,7 +10,7 @@ import pandas as pd
 
 class Agent:
     def __init__(self, environment, n_episodes=1, n_steps=1, gamma=0.5, alpha=0.5,
-                 epsilon=None, epsilon_start=0.95, epsilon_end=0.05, epsilon_decay=1.0e+05):
+                 epsilon=None, epsilon_start=0.95, epsilon_end=0.05, epsilon_decay=1.0e+05, checkpoint_name=None):
         self.env = environment
         self.n_actions = self.env.n_actions
         self.n_obs_space = self.env.n_observation_space
@@ -27,6 +27,7 @@ class Agent:
         self.steps = []
         self.sum_steps = 0
         self.avg_steps = []
+        self.checkpoint_name = checkpoint_name
         pass
 
     @abstractmethod
@@ -40,27 +41,27 @@ class Agent:
     def random_action(self):
         return random.randint(0, self.n_actions)
 
-    def keep_running(self, checkpoint_name, new_r=False):
-        self.read_policy(checkpoint_name)  # read checkpoint
-        self.run(checkpoint_name, new_r=new_r)
+    def keep_running(self, new_r=False):
+        self.read_policy(self.checkpoint_name)  # read checkpoint
+        self.run(new_r=new_r)
 
     @abstractmethod
-    def run(self, checkpoint_name, new_r=False):
+    def run(self, new_r=False):
         pass
 
     @abstractmethod
-    def test(self, checkpoint_name, new_r=False):
+    def test(self, new_r=False):
         pass
 
-    def save_policy(self, checkpoint_name):
+    def save_policy(self):
         checkpoint = {"Q": self.Q, "steps": self.steps, "avg_steps": self.avg_steps,
                       "epsilon": self.epsilon, "dynamic_epsilon": self.dynamic_e_greedy}
-        open('./' + checkpoint_name + '.json', 'w').write(json.dumps(checkpoint))
+        open('./' + self.checkpoint_name + '.json', 'w').write(json.dumps(checkpoint))
         pass
 
-    def read_policy(self, checkpoint_name):
+    def read_policy(self):
         try:
-            checkpoint = json.loads(open('./' + checkpoint_name + '.json', 'r').read())
+            checkpoint = json.loads(open('./' + self.checkpoint_name + '.json', 'r').read())
             self.Q = defaultdict(lambda: [0] * self.n_actions, checkpoint["Q"])
             self.steps = checkpoint["steps"]
             self.sum_steps = np.array(self.steps).sum()
@@ -69,9 +70,9 @@ class Agent:
                 self.dynamic_e_greedy = checkpoint["dynamic_epsilon"]
                 self.epsilon_start = checkpoint["epsilon"]
                 self.epsilon = self.epsilon_start
-            print('read checkpoint from ./' + checkpoint_name + '.json')
+            print('read checkpoint from ./' + self.checkpoint_name + '.json')
         except Exception:
-            print("skip from reading checkpoint: ", checkpoint_name)
+            print("skip from reading checkpoint: ", self.checkpoint_name)
             pass
 
     def visualization(self, last_n_steps=0, outside_df=None):

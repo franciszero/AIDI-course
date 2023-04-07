@@ -25,7 +25,7 @@ class QAgent(Agent, ABC):
     def learning(self, s, a, r, s_):
         self.Q[s][a] += self.lr * (r + self.g * max(self.Q[s_][:]) - self.Q[s][a])
 
-    def run(self, checkpoint_name, new_r=False):
+    def run(self, new_r=False):
         print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         for episode in range(1, self.n_episodes + 1):  # -----------------------  Loop for each episode
             s = self.env.reset(discretize=self.state_discretizing)  # ------     Initialize S
@@ -42,13 +42,13 @@ class QAgent(Agent, ABC):
                     if episode % 500 == 0:
                         print("[%d/%d]: %d" % (episode, self.n_episodes, step + 1))
                     if episode % 100 == 0:
-                        self.save_policy(checkpoint_name=checkpoint_name)
+                        self.save_policy()
                     break
         print("Epsilon ends at %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         pass
 
-    def test(self, checkpoint_name, new_r=False):
-        self.read_policy(checkpoint_name)  # read policy from checkpoint
+    def test(self, new_r=False):
+        self.read_policy()  # read policy from checkpoint
         print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         self.steps = []
         for episode in range(1, self.n_episodes + 1):  # Loop for each episode

@@ -29,15 +29,18 @@ if is_ipython:
 class DQNAgent(Agent, ABC):
     def __init__(self, environment, n_episodes=1, n_steps=1, gamma=0.5,
                  memory_cap=10000, batch_size=64, alpha=1.0e-4, tau=1.,
-                 epsilon=None, epsilon_start=0.95, epsilon_end=0.05, epsilon_decay=1.0e+05):
+                 epsilon=None, epsilon_start=0.95, epsilon_end=0.05, epsilon_decay=1.0e+05,
+                 checkpoint_name=None, ):
         super().__init__(environment, n_episodes, n_steps, gamma, alpha,
-                         epsilon, epsilon_start, epsilon_end, epsilon_decay)
+                         epsilon, epsilon_start, epsilon_end, epsilon_decay, checkpoint_name)
         self.state_discretizing = False  # DQN support a continues state space, then False
         self.experiences = self.ExperienceReplay(memory_cap, batch_size)
         # DNN
         self.optimizer = Adam(learning_rate=self.lr, amsgrad=True)
         self.policy_net = self.DNN()
+        self.policy_net.save_weights(self.checkpoint_name + "_policy_net.h5")  # reset weights checkpoint
         self.target_net = self.DNN()
+        self.target_net.save_weights(self.checkpoint_name + "_target_net.h5")  # reset weights checkpoint
         self.TAU = tau  # for a soft update if less than 1
         self.loss = 0.
 
@@ -85,19 +88,19 @@ class DQNAgent(Agent, ABC):
         else:  # --------------------------------------------------------------- or greedy exploitation
             return np.argmax(self.policy_net(s))
 
-    def keep_running(self, checkpoint_name, new_r=False):
-        self.read_policy(checkpoint_name)  # read policy from checkpoint
-        self.policy_net.load_weights(checkpoint_name + "_policy_net.h5")  # load weights
+    def keep_running(self, new_r=False):
+        self.read_policy()  # read policy from checkpoint
+        self.policy_net.load_weights(self.checkpoint_name + "_policy_net.h5")  # load weights
         print("load weights to policy_net")
-        self.target_net.load_weights(checkpoint_name + "_target_net.h5")  # load weights
+        self.target_net.load_weights(self.checkpoint_name + "_target_net.h5")  # load weights
         print("load weights to target_net")
-        self.run(checkpoint_name, new_r=new_r)
+        self.run(new_r=new_r)
 
-    def test(self, checkpoint_name, new_r=False):
-        self.read_policy(checkpoint_name)  # read policy from checkpoint
-        self.policy_net.load_weights(checkpoint_name + "_policy_net.h5")  # load weights
+    def test(self, new_r=False):
+        self.read_policy()  # read policy from checkpoint
+        self.policy_net.load_weights(self.checkpoint_name + "_policy_net.h5")  # load weights
         print("load weights to policy_net")
-        self.target_net.load_weights(checkpoint_name + "_target_net.h5")  # load weights
+        self.target_net.load_weights(self.checkpoint_name + "_target_net.h5")  # load weights
         print("load weights to target_net")
         print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         self.steps = []
@@ -168,7 +171,7 @@ class DQNAgent(Agent, ABC):
         #     print("model clone")
         pass
 
-    def run(self, checkpoint_name, new_r=False):
+    def run(self, new_r=False):
         print("Epsilon starts from %.3f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         for episode in range(1, self.n_episodes + 1):
             s = self.env.reset(discretize=self.state_discretizing)
@@ -188,9 +191,9 @@ class DQNAgent(Agent, ABC):
                     if episode % 500 == 0:
                         print("[%d/%d]: %d" % (episode, self.n_episodes, step + 1))
                     if episode % 100 == 0:
-                        self.save_policy(checkpoint_name=checkpoint_name)
-                        self.policy_net.save_weights(checkpoint_name + "_policy_net.h5")
-                        self.target_net.save_weights(checkpoint_name + "_target_net.h5")
+                        self.save_policy()
+                        self.policy_net.save_weights(self.checkpoint_name + "_policy_net.h5")
+                        self.target_net.save_weights(self.checkpoint_name + "_target_net.h5")
                     break
         print("Epsilon ends at %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         pass
