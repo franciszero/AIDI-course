@@ -86,4 +86,4 @@ class EnvCartPole:
 if __name__ == '__main__':
     env = EnvCartPole(new_step_api=False)
     for i in range(10):
-        print(env.reset(discretize=False))
+        print(env.reset())

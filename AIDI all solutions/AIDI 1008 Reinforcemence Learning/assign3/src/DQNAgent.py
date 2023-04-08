@@ -13,6 +13,7 @@ import math
 from itertools import count
 import tensorflow as tf
 from keras.optimizers import Adam
+import keras.backend as K
 import matplotlib.pyplot as plt
 
 from Agent import Agent
@@ -40,7 +41,6 @@ class DQNAgent(Agent, ABC):
         self.policy_net = self.DNN("policy_net")
         self.target_net = self.DNN("target_net")
         self.TAU = tau  # for a soft update if less than 1
-        self.loss = 0.
 
     def DNN(self, model_name):
         dnn = Sequential([
@@ -63,14 +63,14 @@ class DQNAgent(Agent, ABC):
         def push(self, *args):
             self.memory.append(self.Transition(*args))  # push a transition into memory
 
-        def sample(self):
+        def sample(self, n_actions):
             transitions = random.sample(self.memory, self.batch_size)  # transitions sampling
             batch = self.Transition(*zip(*transitions))
-            s = tf.convert_to_tensor(np.array(batch.s).squeeze(1))
-            a = tf.convert_to_tensor(np.array(batch.a))
-            r = np.array(batch.r)
-            s_ = tf.convert_to_tensor(np.array(batch.s_).squeeze(1))
-            d = np.array(batch.d)
+            s = tf.squeeze(tf.convert_to_tensor(batch.s, dtype=tf.float32), axis=1)
+            a = tf.one_hot(batch.a, n_actions, dtype=tf.float32)
+            r = tf.convert_to_tensor(batch.r, dtype=tf.float32)
+            s_ = tf.squeeze(tf.convert_to_tensor(batch.s_, dtype=tf.float32), axis=1)
+            d = np.ones(self.batch_size) - tf.convert_to_tensor(batch.d, dtype=tf.float32)
             return s, a, r, s_, d  # zip transitions into a batch
 
         def allow_sampling(self):
@@ -83,6 +83,7 @@ class DQNAgent(Agent, ABC):
         if self.dynamic_e_greedy:  # ------------------------------------------- dynamic e-greedy
             self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * math.exp(
                 -1. * self.sum_steps / self.epsilon_decay)
+        self.sum_steps += 1  # update e-greedy after each step
         if np.random.uniform(low=0.0, high=1.0) < self.epsilon:  # ------------- epsilon exploration
             return self.env.sample_action()
         else:  # --------------------------------------------------------------- or greedy exploitation
@@ -117,35 +118,34 @@ class DQNAgent(Agent, ABC):
             else:
                 display.display(plt.gcf())
 
+    @tf.function
+    def _learning(self, s, a, r, s_, mask):
+        with tf.GradientTape() as g:
+            real_q = tf.reduce_sum(self.policy_net(s) * a, axis=1)  # q_values_taken_by_action
+            max_q_ = tf.reduce_max(self.target_net(s_), axis=1)
+            loss = mse(r + mask * self.g * max_q_, real_q)  # mse loss
+        gradients = g.gradient(loss, self.policy_net.trainable_variables)  # compute gradients with loss
+        self.optimizer.apply_gradients(zip(gradients, self.policy_net.trainable_variables))  # Backpropagation
+
     def learning(self, s, a, r, s_, d):
         self.experiences.push(s, a, r, s_, d)
         if not self.experiences.allow_sampling():
             return
 
-        s, a, r, s_, d = self.experiences.sample()  # sampling from replay memory
+        s, a, r, s_, d = self.experiences.sample(self.n_actions)
+        self._learning(s, a, r, s_, d)  # sampling from replay memory
 
-        with tf.GradientTape() as g:
-            q = self.policy_net(s)
-            m = tf.one_hot(a, self.n_actions)
-            real_q = tf.reduce_sum(m * q, axis=-1)  # q_values_taken_by_action
-
-            max_q_ = tf.reduce_max(self.target_net(s_), axis=1)
-            self.loss = mse(r + (1 - d) * self.g * max_q_, real_q)  # mse loss
-        gradients = g.gradient(self.loss, self.policy_net.trainable_variables)  # compute gradients with loss
-        self.optimizer.apply_gradients(zip(gradients, self.policy_net.trainable_variables))  # Backpropagation
-
-        # Soft update of the target network's weights
-        # # θ′ ← τ θ + (1 −τ )θ′
+        # Soft update: θ′ ← τ θ + (1 −τ )θ′
         new_weights = []
         w1 = self.policy_net.weights
         w2 = self.target_net.weights
         for i in range(len(self.policy_net.weights)):
             new_weights.append(w1[i] * self.TAU + w2[i] * (1 - self.TAU))
         self.target_net.set_weights(new_weights)
-        # if self.sum_steps % 100 == 0:
+        # or update target network every N steps:
+        # if self.sum_steps % N == 0:
         #     from keras.models import clone_model
         #     self.target_net = clone_model(self.policy_net)
-        #     print("model clone")
         pass
 
     def run(self, new_r=False):
@@ -161,9 +161,9 @@ class DQNAgent(Agent, ABC):
                     self.policy_net.save("./")
                     self.steps.append(step)
                     self.avg_steps.append(np.mean(self.steps[-10:]))
-                    if episode % 100 == 0:
+                    if episode % 1 == 0:
                         # self.plot_durations()
-                        print("[%d/%d]: steps %d, epsilon %.4f, loss %.4f" % (episode, self.n_episodes, step, self.epsilon, self.loss))
+                        print("[%d/%d]: steps %d, epsilon %.4f" % (episode, self.n_episodes, step, self.epsilon))
                     if episode % 500 == 0:
                         print("[%d/%d]: %d" % (episode, self.n_episodes, step + 1))
                     if episode % 100 == 0:

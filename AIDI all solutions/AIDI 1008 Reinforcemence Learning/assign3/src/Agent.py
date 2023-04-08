@@ -58,13 +58,13 @@ class Agent:
         checkpoint = {"Q": self.Q, "steps": self.steps, "avg_steps": self.avg_steps,
                       "epsilon": self.epsilon, "dynamic_epsilon": self.dynamic_e_greedy}
         open('./' + self.checkpoint_name + '.json', 'w').write(json.dumps(checkpoint))
-        print("save runtime environments")
+        # print("save runtime environments")
         if self.policy_net is not None:
             self.policy_net.save_weights("%s_%s.h5" % (self.checkpoint_name, self.policy_net._name))
-            print("save policy_net")
+            # print("save policy_net")
         if self.target_net is not None:
             self.target_net.save_weights("%s_%s.h5" % (self.checkpoint_name, self.target_net._name))
-            print("save target_net")
+            # print("save target_net")
         pass
 
     def read_policy(self):

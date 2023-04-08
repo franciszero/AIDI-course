@@ -20,6 +20,7 @@ class QAgent(Agent, ABC):
         if self.dynamic_e_greedy:  # ------------------------------------------- dynamic e-greedy
             self.epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * math.exp(
                 -1. * self.sum_steps / self.epsilon_decay)
+        self.sum_steps += 1  # update e-greedy after each step
         if np.random.uniform(low=0.0, high=1.0) < self.epsilon:  # ------------- epsilon exploration
             return self.env.sample_action()
         else:  # --------------------------------------------------------------- or greedy exploitation
