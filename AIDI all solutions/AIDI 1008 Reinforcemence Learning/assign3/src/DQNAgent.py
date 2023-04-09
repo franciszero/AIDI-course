@@ -164,7 +164,7 @@ class DQNAgent(Agent, ABC):
                     self.policy_net.save("./")
                     self.steps.append(step)
                     self.avg_steps.append(np.mean(self.steps[-10:]))
-                    if episode % 1 == 0:
+                    if episode % 20 == 0:
                         # self.plot_durations()
                         print("[%d/%d]: steps %d, epsilon %.4f" % (episode, self.n_episodes, step, self.epsilon))
                     if episode % 500 == 0:
