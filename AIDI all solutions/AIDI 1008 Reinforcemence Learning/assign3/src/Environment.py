@@ -65,6 +65,15 @@ class EnvCartPole:
         """
         if self.new_step_api:
             s_, r, terminated, truncated = self._env.step(a)[:4]
+            if len(truncated.items()) > 1:
+                print('Unexpected [truncated] response.')
+            if isinstance(truncated, dict):
+                try:
+                    truncated = truncated.get("TimeLimit.truncated")
+                except Exception as e:
+                    print('Failed to access key [TimeLimit.truncated], reset truncated as False. Error msg:')
+                    print(str(e))
+                    truncated = False
         else:
             s_, r, terminated = self._env.step(a)[:3]
             truncated = False

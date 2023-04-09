@@ -57,7 +57,6 @@ class DQNAgent(Agent, ABC):
         ])
         dnn.compile(loss=mse, optimizer=Adam(learning_rate=self.lr))
         dnn._name = model_name
-        dnn.save_weights("%s_%s.h5" % (self.checkpoint_name, dnn._name))  # reset weights checkpoint
         return dnn
 
     class ExperienceReplay(object):
@@ -192,33 +191,33 @@ class DQNAgent(Agent, ABC):
 
 
 if __name__ == '__main__':
-    env = EnvCartPole(new_step_api=False)
-    agent3 = DQNAgent(env, n_episodes=200, n_steps=1000, gamma=0.99, epsilon=1,
-                      memory_cap=1000, batch_size=128, alpha=1.0e-4, tau=0.005,
-                      checkpoint_name="policy3", )
-    agent3.run(new_r=False)
-    agent3.rolling_plot()
+    # env = EnvCartPole(new_step_api=False)
+    # agent3 = DQNAgent(env, n_episodes=200, n_steps=1000, gamma=0.99, epsilon=1,
+    #                   memory_cap=1000, batch_size=128, alpha=1.0e-4, tau=0.005,
+    #                   checkpoint_name="policy3", )
+    # agent3.run(new_r=False)
+    # agent3.rolling_plot()
 
     env = EnvCartPole(new_step_api=False)
-    agent4 = DQNAgent(env, n_episodes=200, n_steps=1000, gamma=0.99,
+    agent4 = DQNAgent(env, n_episodes=20, n_steps=1000, gamma=0.99,
                       memory_cap=1000, batch_size=128, alpha=1.0e-4, tau=0.005,
                       epsilon=None, epsilon_start=0.95, epsilon_end=0.05, epsilon_decay=2.0e+03,
                       checkpoint_name="policy4", )
     agent4.run(new_r=False)
 
-    # define e=0 to apply policy 1, which is a random baseline
-    agent3 = DQNAgent(env, n_episodes=50, epsilon=0, checkpoint_name="policy3", )
-    test3 = agent3.test(new_r=False)
-
-    # define e=0 to apply policy 1, which is a well traind DQN Agent
-    agent4 = DQNAgent(env, n_episodes=50, epsilon=0, checkpoint_name="policy4", )
-    test4 = agent4.test(new_r=False)
-
-    # plot and compare them
-    df = pd.DataFrame({"Random Baseline": test3[-1000:], "Deep Q-Learning Agent": test4[-1000:]})
-    df = df.stack().reset_index()
-    df.columns = ["x", "hue", "y"]
-
-    agent4.vis(df, "Agent Comparison", "Episodes", "Steps", "Agent comparison")
-    agent4.cumsum_plot(test3, test4)
+    # # define e=0 to apply policy 1, which is a random baseline
+    # agent3 = DQNAgent(env, n_episodes=50, epsilon=0, checkpoint_name="policy3", )
+    # test3 = agent3.test(new_r=False)
+    #
+    # # define e=0 to apply policy 1, which is a well traind DQN Agent
+    # agent4 = DQNAgent(env, n_episodes=50, epsilon=0, checkpoint_name="policy4", )
+    # test4 = agent4.test(new_r=False)
+    #
+    # # plot and compare them
+    # df = pd.DataFrame({"Random Baseline": test3[-1000:], "Deep Q-Learning Agent": test4[-1000:]})
+    # df = df.stack().reset_index()
+    # df.columns = ["x", "hue", "y"]
+    #
+    # agent4.vis(df, "Agent Comparison", "Episodes", "Steps", "Agent comparison")
+    # agent4.cumsum_plot(test3, test4)
 
