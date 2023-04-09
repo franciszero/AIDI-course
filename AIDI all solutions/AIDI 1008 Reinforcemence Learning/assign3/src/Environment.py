@@ -24,7 +24,7 @@ class EnvCartPole:
     def norm_spacing(x, lim, base):
         """
         see example of discretizing:
-        for x in np.arange(-base, base, 0.1):
+        for x in np.arange(-lim, lim, 0.1):
             print("x=%.1f, bin id: %d" % (x, math.ceil(norm.cdf(x / lim * 3) * base) - 1))
         """
         assert (abs(x) <= lim)
@@ -69,13 +69,10 @@ class EnvCartPole:
             s_, r, terminated = self._env.step(a)[:3]
             truncated = False
 
-        # if terminated:
-        #     s_ = None  # delete s_ after a terminate state
-        # else:
         if self.discretize:
-            s_ = self.state_discretize(s_)  # discretize s_ to a limited state_space
+            s_ = self.state_discretize(s_)  # Applying discretization to s'
         else:
-            s_ = np.array([s_])
+            s_ = np.array([s_])  # or
 
         if new_reward:  # instead of the default setting, only a punishment will return when failed, otherwise 0.
             r = -1 if terminated else 0
