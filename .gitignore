@@ -11,3 +11,6 @@ AIDI all solutions/AIDI 1006 AI Infrastructure and Arch/Assignment 1/cifar-10-ba
 AIDI all solutions/AIDI 1006 AI Infrastructure and Arch/Assignment 1/cifar-10-batches-py/train.zip
 AIDI all solutions/AIDI 1008 Reinforcemence Learning/assign3/src/policy1.json
 AIDI all solutions/AIDI 1008 Reinforcemence Learning/assign3/src/policy2.json
+AIDI all solutions/AIDI 1008 Reinforcemence Learning/assign3/src/checkpoint
+AIDI all solutions/AIDI 1008 Reinforcemence Learning/assign3/src/dqn_CartPole-v1_weights.h5f.data-00000-of-00001
+AIDI all solutions/AIDI 1008 Reinforcemence Learning/assign3/src/dqn_CartPole-v1_weights.h5f.index
