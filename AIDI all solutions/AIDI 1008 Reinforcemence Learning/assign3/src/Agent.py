@@ -83,12 +83,12 @@ class Agent:
             if self.policy_net is not None:
                 path = "%s/%s/" % (self.checkpoint_name, self.policy_net._name)
                 if isfile(path):
-                    self.policy_net.load(path)  # load policy_net
+                    self.policy_net.load_weights(path)  # load policy_net
                     print("load weights to policy_net")
             if self.target_net is not None:
                 path = "%s/%s/" % (self.checkpoint_name, self.target_net._name)
                 if isfile(path):
-                    self.target_net.load(path)  # load target_net
+                    self.target_net.load_weights(path)  # load target_net
                     print("load weights to target_net")
             print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         except Exception as e:
