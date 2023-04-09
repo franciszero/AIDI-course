@@ -62,10 +62,10 @@ class Agent:
         open('./' + self.checkpoint_name + '.json', 'w').write(json.dumps(checkpoint))
         # print("save runtime environments")
         if self.policy_net is not None:
-            self.policy_net.save_weights("%s_%s.h5" % (self.checkpoint_name, self.policy_net._name))
+            self.policy_net.save("%s/%s/" % (self.checkpoint_name, self.policy_net._name))
             # print("save policy_net")
         if self.target_net is not None:
-            self.target_net.save_weights("%s_%s.h5" % (self.checkpoint_name, self.target_net._name))
+            self.target_net.save("%s/%s/" % (self.checkpoint_name, self.target_net._name))
             # print("save target_net")
         pass
 
@@ -81,14 +81,14 @@ class Agent:
                 self.epsilon = checkpoint["epsilon"]
             print('read checkpoint from ./' + self.checkpoint_name + '.json')
             if self.policy_net is not None:
-                path = "%s_%s.h5" % (self.checkpoint_name, self.policy_net._name)
+                path = "%s/%s/" % (self.checkpoint_name, self.policy_net._name)
                 if isfile(path):
-                    self.policy_net.load_weights(path)  # load policy_net
+                    self.policy_net.load(path)  # load policy_net
                     print("load weights to policy_net")
             if self.target_net is not None:
-                path = "%s_%s.h5" % (self.checkpoint_name, self.target_net._name)
+                path = "%s/%s/" % (self.checkpoint_name, self.target_net._name)
                 if isfile(path):
-                    self.target_net.load_weights(path)  # load target_net
+                    self.target_net.load(path)  # load target_net
                     print("load weights to target_net")
             print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         except Exception as e:

@@ -82,7 +82,7 @@ if __name__ == '__main__':
     agent1 = QAgent(env, n_episodes=1000, epsilon=1)
     test1 = agent1.test(new_r=False)
 
-    agent2 = QAgent(env, n_episodes=1000, epsilon=None)
+    agent2 = QAgent(env, n_episodes=1000, epsilon=0.)
     test2 = agent2.test(new_r=False)
 
     # plot and compare them

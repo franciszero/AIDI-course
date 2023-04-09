@@ -1,4 +1,6 @@
 import random
+from os.path import isfile
+
 import numpy as np
 import pandas as pd
 from abc import ABC, abstractmethod
@@ -161,7 +163,6 @@ class DQNAgent(Agent, ABC):
                 self.learning(s, a, r, s_, done)
                 s = s_
                 if done:
-                    self.policy_net.save("./")
                     self.steps.append(step)
                     self.avg_steps.append(np.mean(self.steps[-10:]))
                     if episode % 20 == 0:
