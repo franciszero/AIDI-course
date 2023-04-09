@@ -167,9 +167,7 @@ class DQNAgent(Agent, ABC):
                     if episode % 20 == 0:
                         # self.plot_durations()
                         print("[%d/%d]: steps %d, epsilon %.4f" % (episode, self.n_episodes, step, self.epsilon))
-                    if episode % 500 == 0:
-                        print("[%d/%d]: %d" % (episode, self.n_episodes, step + 1))
-                    if episode % 100 == 0:
+                    if episode % 200 == 0:
                         self.save_policy()
                     break
         print("Epsilon ends at %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))

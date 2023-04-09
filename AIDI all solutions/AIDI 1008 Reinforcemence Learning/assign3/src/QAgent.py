@@ -13,7 +13,7 @@ class QAgent(Agent, ABC):
                  checkpoint_name="policy3", ):
         super().__init__(environment, n_episodes, n_steps, gamma, alpha,
                          epsilon, epsilon_start, epsilon_end, epsilon_decay, checkpoint_name)
-        self.env.discretize = True
+        self.env.discretize = True  # set the env act as discretized
         pass
 
     def action(self, state):  # ------------------------------------------------ epsilon-greedy action policy
@@ -24,13 +24,12 @@ class QAgent(Agent, ABC):
         if np.random.uniform(low=0.0, high=1.0) < self.epsilon:  # ------------- epsilon exploration
             return self.env.sample_action()
         else:  # --------------------------------------------------------------- or greedy exploitation
-            return np.argmax(self.Q[state][:])
+            return np.argmax(self.Q[state][:])  # unique for q-learning
 
-    def learning(self, s, a, r, s_, d):
+    def learning(self, s, a, r, s_, d):  # update q-table with bellman equation
         self.Q[s][a] += self.lr * (r + self.g * max(self.Q[s_][:]) - self.Q[s][a])
 
     def run(self, new_r=False):
-        print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         for episode in range(1, self.n_episodes + 1):  # -----------------------  Loop for each episode
             s = self.env.reset()  # ------     Initialize S
             for step in range(1, self.n_steps + 1):  # -------------------------     Loop for each step of episode
@@ -51,7 +50,6 @@ class QAgent(Agent, ABC):
 
     def test(self, new_r=False):
         self.read_policy()  # read policy from checkpoint
-        print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         self.steps = []
         for episode in range(1, self.n_episodes + 1):  # Loop for each episode
             s = self.env.reset()  # Initialize S
