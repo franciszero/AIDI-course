@@ -1,4 +1,6 @@
 import random
+from os.path import isfile
+
 import numpy as np
 from abc import ABC, abstractmethod
 from collections import defaultdict, namedtuple, deque
@@ -78,39 +80,55 @@ class Agent:
                 self.dynamic_e_greedy = checkpoint["dynamic_epsilon"]
                 self.epsilon = checkpoint["epsilon"]
             print('read checkpoint from ./' + self.checkpoint_name + '.json')
-            self.policy_net.load_weights("%s_%s.h5" % (self.checkpoint_name, self.policy_net._name))  # load policy_net
-            print("load weights to policy_net")
-            self.target_net.load_weights("%s_%s.h5" % (self.checkpoint_name, self.target_net._name))  # load target_net
-            print("load weights to target_net")
+            if self.policy_net is not None:
+                path = "%s_%s.h5" % (self.checkpoint_name, self.policy_net._name)
+                if isfile(path):
+                    self.policy_net.load_weights(path)  # load policy_net
+                    print("load weights to policy_net")
+            if self.target_net is not None:
+                path = "%s_%s.h5" % (self.checkpoint_name, self.target_net._name)
+                if isfile(path):
+                    self.target_net.load_weights(path)  # load target_net
+                    print("load weights to target_net")
             print("Epsilon starts from %.4f" % (self.epsilon_start if self.epsilon is None else self.epsilon))
         except Exception as e:
             print("skip from reading checkpoint: ", self.checkpoint_name)
             print(e)
             pass
 
-    def visualization(self, last_n_steps=0, outside_df=None):
-        if outside_df is not None:
-            f = outside_df
-        else:
-            f = pd.DataFrame({"Steps": self.steps[last_n_steps:]})
-            # df['MA_10'] = df['Steps'].rolling(10).mean()
-            f['MA_100'] = f['Steps'].rolling(100).mean()
-            f.fillna(0.0)
-            f = f.stack().reset_index()
-            f.columns = ["x", "hue", "y"]
+    def cumsum_plot(self, random_step, smart_steps, last_n_steps=0):
+        f = pd.DataFrame({"Random Agent": np.cumsum(random_step)[last_n_steps:],
+                          "Smart Agent": np.cumsum(smart_steps)[last_n_steps:],
+                          })
+        f = self.dataframe_stack(f)
+        self.vis(f, title='Accumulation Steps', x_label='Episodes', y_label='Steps', save_file='./cum_steps.jpg')
 
-        # seaborn plot
+    def rolling_plot(self, last_n_steps=0):
+        f = pd.DataFrame({"Steps": self.steps[last_n_steps:]})
+        f['MA_100'] = f['Steps'].rolling(100).mean()
+        f = self.dataframe_stack(f)
+        self.vis(f, title='Rolling Steps', x_label='Episodes', y_label='Steps', save_file='./rolling_steps.jpg')
+
+    @staticmethod
+    def dataframe_stack(f):
+        f.fillna(0.0)
+        f = f.stack().reset_index()
+        f.columns = ["x", "hue", "y"]
+        return f
+
+    @staticmethod
+    def vis(data, title, x_label, y_label, save_file):
         fig, ax = plt.subplots(1, 1, figsize=(10, 3), dpi=100)
-        sns.lineplot(data=f, x="x", y="y", hue="hue", markers=False, dashes=False, lw=1, ax=ax)
+        sns.lineplot(data=data, x="x", y="y", hue="hue", markers=False, dashes=False, lw=1, ax=ax)
 
-        ax.set_title('Visualization')
-        ax.set_xlabel('Episodes')
-        ax.set_ylabel('Lifetime Steps')
+        ax.set_title(title)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
         ax.set_yscale('log')
         ax.grid(color='black', linestyle='--', which='major', linewidth=0.5)
         ax.grid(color='gray', linestyle='--', which='minor', linewidth=0.3)
 
         ax.legend()
         plt.tight_layout()
-        plt.savefig('./plot.jpg')
+        plt.savefig(save_file)
         plt.show()

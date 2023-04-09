@@ -27,6 +27,10 @@ if is_ipython:
     from IPython import display
 
 
+# https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
+# https://colab.research.google.com/drive/1ExE__T9e2dMDKbxrJfgp8jP0So8umC-A#sandboxMode=true&scrollTo=OvvBAoQVJsuU
+# https://jonathan-hui.medium.com/rl-dqn-deep-q-network-e207751f7ae4#5c95
+
 class DQNAgent(Agent, ABC):
     def __init__(self, environment, n_episodes=1, n_steps=1, gamma=0.5,
                  memory_cap=10000, batch_size=64, alpha=1.0e-4, tau=1.,
@@ -156,7 +160,6 @@ class DQNAgent(Agent, ABC):
                 s_, r, done, trunc = self.env.step(a, new_reward=new_r)
                 self.learning(s, a, r, s_, done)
                 s = s_
-                self.sum_steps += 1  # update e-greedy after each episode
                 if done:
                     self.policy_net.save("./")
                     self.steps.append(step)
@@ -189,11 +192,11 @@ class DQNAgent(Agent, ABC):
 
 if __name__ == '__main__':
     env = EnvCartPole(new_step_api=False)
-    agent3 = DQNAgent(env, n_episodes=10, n_steps=1000, gamma=0.99, epsilon=1,
+    agent3 = DQNAgent(env, n_episodes=20, n_steps=1000, gamma=0.99, epsilon=1,
                       memory_cap=1000, batch_size=128, alpha=1.0e-4, tau=0.005,
                       checkpoint_name="policy3", )
     agent3.run(new_r=False)
-    agent3.visualization()
+    agent3.rolling_plot()
 
     env = EnvCartPole(new_step_api=False)
     agent4 = DQNAgent(env, n_episodes=20, n_steps=1000, gamma=0.99,
@@ -201,7 +204,7 @@ if __name__ == '__main__':
                       epsilon=None, epsilon_start=0.9, epsilon_end=0.05, epsilon_decay=1.0e+03,
                       checkpoint_name="policy4", )
     agent4.run(new_r=False)
-    agent4.visualization()
+    agent4.rolling_plot()
 
     # test agent3+agent4
     agent3 = DQNAgent(env, n_episodes=20, epsilon=1, checkpoint_name="policy3", )
@@ -215,5 +218,6 @@ if __name__ == '__main__':
     df = df.stack().reset_index()
     df.columns = ["x", "hue", "y"]
 
-    agent4.visualization(last_n_steps=-1000, outside_df=df)
+    agent4.vis(df, "Agent Comparison", "Episodes", "Steps", "Agent comparison")
+    agent4.cumsum_plot(test3, test4)
 

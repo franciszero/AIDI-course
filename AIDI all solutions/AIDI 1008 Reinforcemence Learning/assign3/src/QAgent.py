@@ -40,10 +40,9 @@ class QAgent(Agent, ABC):
                 s = s_  # ------------------------------------------------------        S = S'
                 if done:  # ----------------------------------------------------     until S is terminal
                     self.steps.append(step)
-                    self.sum_steps += step  # update e-greedy after each episode
                     self.avg_steps.append(np.mean(self.steps[-10:]))
-                    if episode % 500 == 0:
-                        print("[%d/%d]: %d" % (episode, self.n_episodes, step + 1))
+                    if episode % 50 == 0:
+                        print("[%d/%d]: %d, %.4f" % (episode, self.n_episodes, step + 1, self.epsilon))
                     if episode % 100 == 0:
                         self.save_policy()
                     break
@@ -68,16 +67,16 @@ class QAgent(Agent, ABC):
 if __name__ == '__main__':
     # train agent1
     env = EnvCartPole(discrete_base=8, new_step_api=False)
-    agent1 = QAgent(env, n_episodes=300, n_steps=1000, gamma=0.99, alpha=0.5, epsilon=1, checkpoint_name="policy1", )
+    agent1 = QAgent(env, n_episodes=100, n_steps=1000, gamma=0.99, alpha=0.5, epsilon=1, checkpoint_name="policy1", )
     agent1.run(new_r=False)
-    agent1.visualization()
+    agent1.rolling_plot()
 
     # train agent2
     env = EnvCartPole(discrete_base=8, new_step_api=False)
-    agent2 = QAgent(env, n_episodes=300, n_steps=1000, gamma=0.99, alpha=0.5, epsilon=None,
-                    epsilon_start=0.5, epsilon_end=0.0001, epsilon_decay=1.0e+04, checkpoint_name="policy2", )
+    agent2 = QAgent(env, n_episodes=1000, n_steps=1000, gamma=0.99, alpha=0.1, epsilon=None,
+                    epsilon_start=0.5, epsilon_end=0.001, epsilon_decay=1.0e+04, checkpoint_name="policy2", )
     agent2.run(new_r=False)
-    agent2.visualization()
+    agent2.rolling_plot()
 
     # test agent1+agent2
     agent1 = QAgent(env, n_episodes=1000, epsilon=1)
