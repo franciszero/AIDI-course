@@ -153,7 +153,7 @@ class DQNAgent(Agent, ABC):
         #     self.target_net = clone_model(self.policy_net)
         pass
 
-    def run(self, new_r=False):
+    def run(self, new_r=False, debugging_freq=10):
         for episode in range(1, self.n_episodes + 1):
             s = self.env.reset()
             for step in range(1, self.n_steps + 1):
@@ -163,8 +163,7 @@ class DQNAgent(Agent, ABC):
                 s = s_
                 if done:
                     self.steps.append(step)
-                    self.avg_steps.append(np.mean(self.steps[-10:]))
-                    if episode % 20 == 0:
+                    if episode % debugging_freq == 0:
                         # self.plot_durations()
                         print("[%d/%d]: steps %d, epsilon %.4f" % (episode, self.n_episodes, step, self.epsilon))
                     if episode % 200 == 0:

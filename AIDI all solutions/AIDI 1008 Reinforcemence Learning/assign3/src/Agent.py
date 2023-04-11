@@ -44,12 +44,12 @@ class Agent:
     def random_action(self):
         return random.randint(0, self.n_actions)
 
-    def keep_running(self, new_r=False):
+    def keep_running(self, new_r=False, debugging_freq=1000):
         self.read_policy()  # read checkpoint
-        self.run(new_r=new_r)
+        self.run(new_r=new_r, debugging_freq=debugging_freq)
 
     @abstractmethod
-    def run(self, new_r=False):
+    def run(self, new_r=False, debugging_freq=1000):
         pass
 
     @abstractmethod
@@ -59,6 +59,7 @@ class Agent:
     def save_policy(self):
         checkpoint = {"Q": self.Q, "steps": self.steps, "avg_steps": self.avg_steps,
                       "epsilon": self.epsilon, "dynamic_epsilon": self.dynamic_e_greedy}
+        print("save_policy: ", checkpoint)
         open('./' + self.checkpoint_name + '.json', 'w').write(json.dumps(checkpoint))
         # print("save runtime environments")
         if self.policy_net is not None:

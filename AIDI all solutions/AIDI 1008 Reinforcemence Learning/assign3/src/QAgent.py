@@ -29,7 +29,7 @@ class QAgent(Agent, ABC):
     def learning(self, s, a, r, s_, d):  # update q-table with bellman equation
         self.Q[s][a] += self.lr * (r + self.g * max(self.Q[s_][:]) - self.Q[s][a])
 
-    def run(self, new_r=False):
+    def run(self, new_r=False, debugging_freq=100):
         for episode in range(1, self.n_episodes + 1):  # -----------------------  Loop for each episode
             s = self.env.reset()  # ------     Initialize S
             for step in range(1, self.n_steps + 1):  # -------------------------     Loop for each step of episode
@@ -39,8 +39,7 @@ class QAgent(Agent, ABC):
                 s = s_  # ------------------------------------------------------        S = S'
                 if done:  # ----------------------------------------------------     until S is terminal
                     self.steps.append(step)
-                    self.avg_steps.append(np.mean(self.steps[-10:]))
-                    if episode % 50 == 0:
+                    if episode % debugging_freq == 0:
                         print("[%d/%d]: %d, %.4f" % (episode, self.n_episodes, step + 1, self.epsilon))
                     if episode % 100 == 0:
                         self.save_policy()
